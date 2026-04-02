@@ -186,7 +186,7 @@ def generate_data_baidu(prompt, data_type):
                     return None, "生成的数据格式不正确，应该是一个数组"
             except json.JSONDecodeError as e:
                 return None, f"JSON解析失败：{str(e)}\n生成的内容：{result[:500]}"
-        elif data_type == "XMind":
+        elif data_type == "mindmap":
             return result, f"generated_mindmap_baidu.txt"
         else:
             return None, "不支持的数据类型"
