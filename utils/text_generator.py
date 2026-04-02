@@ -132,7 +132,7 @@ def generate_text_xunfei(prompt):
             'Authorization': f'Bearer {api_key}'
         }
         data = {
-            "model": "spark-doubao",  # 使用正确的模型名称
+            "model": "Spark Lite",  # 使用Spark Lite模型
             "messages": [
                 {
                     "role": "user",
