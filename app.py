@@ -536,15 +536,27 @@ elif option == "数据生成":
         with col1:
             generate_btn = st.button("🚀 生成数据", type="primary")
         
-        # 下载按钮（仅在生成数据后显示）
+        # 显示保存的生成结果和下载按钮
         if st.session_state.generated_data is not None:
             current_data_type = st.session_state.generated_data_type
             
+            st.success("生成成功！")
+            st.markdown("### 生成结果")
+            
+            # 显示生成结果
+            if current_data_type == "JSON":
+                st.json(st.session_state.generated_data)
+            elif current_data_type == "XLSX":
+                st.dataframe(st.session_state.generated_data)
+            elif current_data_type == "mindmap":
+                st.text(st.session_state.generated_data)
+            
+            # 下载按钮
             with col2:
                 if current_data_type == "JSON":
                     json_str = json.dumps(st.session_state.generated_data, ensure_ascii=False, indent=2)
                     st.download_button(
-                        label="💾 下载JSON文件",
+                        label="💾 下载当前数据",
                         data=json_str,
                         file_name=st.session_state.generated_filename,
                         mime="application/json"
@@ -554,14 +566,14 @@ elif option == "数据生成":
                     with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
                         st.session_state.generated_data.to_excel(writer, index=False, sheet_name='Sheet1')
                     st.download_button(
-                        label="💾 下载Excel文件",
+                        label="💾 下载当前数据",
                         data=buffer.getvalue(),
                         file_name=st.session_state.generated_filename,
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
                 elif current_data_type == "mindmap":
                     st.download_button(
-                        label="💾 下载mindmap文件",
+                        label="💾 下载当前数据",
                         data=st.session_state.generated_data,
                         file_name=st.session_state.generated_filename,
                         mime="application/xmind"
@@ -585,13 +597,8 @@ elif option == "数据生成":
                             st.session_state.generated_filename = filename
                             st.session_state.generated_data_type = data_type
                             
-                            # 显示生成结果
-                            if data_type == "JSON":
-                                st.json(data)
-                            elif data_type == "XLSX":
-                                st.dataframe(data)
-                            elif data_type == "mindmap":
-                                st.text(data)
+                            # 刷新页面以显示下载按钮
+                            st.experimental_rerun()
                         
 
                         else:
