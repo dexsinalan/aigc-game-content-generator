@@ -433,6 +433,31 @@ elif option == "文本生成":
         with col1:
             generate_btn = st.button("🚀 生成文本", type="primary")
         
+        # 显示保存的生成结果
+        if 'generated_text' in st.session_state and st.session_state.generated_text:
+            st.success("生成成功！")
+            st.markdown("### 生成结果")
+            st.write(st.session_state.generated_text)
+            
+            # 提供复制按钮
+            col1, col2 = st.columns([1, 4])
+            with col1:
+                if st.button("📋 复制文本"):
+                    # 直接使用JavaScript复制，不使用会话状态
+                    script = f"""
+                    <script>
+                    navigator.clipboard.writeText('{st.session_state.generated_text}').then(function() {{
+                        console.log('复制成功');
+                    }}, function(err) {{
+                        console.error('复制失败:', err);
+                    }});
+                    </script>
+                    """
+                    st.markdown(script, unsafe_allow_html=True)
+                    st.success("文本已复制到剪贴板！")
+            
+            st.code(st.session_state.generated_text, language="text")
+        
         if generate_btn:
             if not prompt:
                 st.error("请输入提示词")
@@ -441,28 +466,10 @@ elif option == "文本生成":
                     try:
                         # 调用文本生成函数
                         result = generate_text(prompt, st.session_state.selected_model)
-                        st.success("生成成功！")
-                        st.markdown("### 生成结果")
-                        st.write(result)
-                        
-                        # 提供复制按钮
-                        col1, col2 = st.columns([1, 4])
-                        with col1:
-                            if st.button("📋 复制文本"):
-                                # 直接使用JavaScript复制，不使用会话状态
-                                script = f"""
-                                <script>
-                                navigator.clipboard.writeText('{result}').then(function() {{
-                                    console.log('复制成功');
-                                }}, function(err) {{
-                                    console.error('复制失败:', err);
-                                }});
-                                </script>
-                                """
-                                st.markdown(script, unsafe_allow_html=True)
-                                st.success("文本已复制到剪贴板！")
-                        
-                        st.code(result, language="text")
+                        # 保存结果到会话状态
+                        st.session_state.generated_text = result
+                        # 刷新页面以显示结果
+                        st.experimental_rerun()
                     except Exception as e:
                         st.error(f"生成失败：{str(e)}")
 
@@ -483,6 +490,39 @@ elif option == "图像生成":
         with col1:
             generate_btn = st.button("🚀 生成图像", type="primary")
         
+        # 显示保存的生成结果
+        if 'generated_image' in st.session_state and st.session_state.generated_image:
+            st.success("生成成功！")
+            st.markdown("### 生成结果")
+            st.image(st.session_state.generated_image, use_container_width=True)
+            
+            # 提供下载和复制按钮
+            if st.session_state.generated_image.startswith('http'):
+                response = requests.get(st.session_state.generated_image)
+                if response.status_code == 200:
+                    col1, col2 = st.columns([1, 1])
+                    with col1:
+                        st.download_button(
+                            label="💾 下载图像",
+                            data=response.content,
+                            file_name=f"generated_image_{st.session_state.selected_model}.png",
+                            mime="image/png"
+                        )
+                    with col2:
+                        if st.button("📋 复制图像链接"):
+                            # 直接使用JavaScript复制，不使用会话状态
+                            script = f"""
+                            <script>
+                            navigator.clipboard.writeText('{st.session_state.generated_image}').then(function() {{
+                                console.log('复制成功');
+                            }}, function(err) {{
+                                console.error('复制失败:', err);
+                            }});
+                            </script>
+                            """
+                            st.markdown(script, unsafe_allow_html=True)
+                            st.success("图像链接已复制到剪贴板！")
+        
         if generate_btn:
             if not prompt:
                 st.error("请输入提示词")
@@ -491,36 +531,10 @@ elif option == "图像生成":
                     try:
                         # 调用图像生成函数
                         image_url = generate_image(prompt, st.session_state.selected_model)
-                        st.success("生成成功！")
-                        st.markdown("### 生成结果")
-                        st.image(image_url, use_container_width=True)
-                        
-                        # 提供下载和复制按钮
-                        if image_url.startswith('http'):
-                            response = requests.get(image_url)
-                            if response.status_code == 200:
-                                col1, col2 = st.columns([1, 1])
-                                with col1:
-                                    st.download_button(
-                                        label="💾 下载图像",
-                                        data=response.content,
-                                        file_name=f"generated_image_{st.session_state.selected_model}.png",
-                                        mime="image/png"
-                                    )
-                                with col2:
-                                    if st.button("📋 复制图像链接"):
-                                        # 直接使用JavaScript复制，不使用会话状态
-                                        script = f"""
-                                        <script>
-                                        navigator.clipboard.writeText('{image_url}').then(function() {{
-                                            console.log('复制成功');
-                                        }}, function(err) {{
-                                            console.error('复制失败:', err);
-                                        }});
-                                        </script>
-                                        """
-                                        st.markdown(script, unsafe_allow_html=True)
-                                        st.success("图像链接已复制到剪贴板！")
+                        # 保存结果到会话状态
+                        st.session_state.generated_image = image_url
+                        # 刷新页面以显示结果
+                        st.experimental_rerun()
                     except Exception as e:
                         st.error(f"生成失败：{str(e)}")
 
