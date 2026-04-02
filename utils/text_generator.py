@@ -35,7 +35,7 @@ def generate_text_for_model(prompt, model):
         return generate_text_xunfei(full_prompt)
     elif model == "Claude":
         return generate_text_claude(full_prompt)
-    elif model == "GPT":
+    elif model == "ChatGPT":
         return generate_text_gpt(full_prompt)
     elif model == "DeepSeek":
         return generate_text_deepseek(full_prompt)

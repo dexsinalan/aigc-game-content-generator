@@ -35,8 +35,8 @@ def generate_image_for_model(prompt, model):
         return generate_image_xunfei(full_prompt)
     elif model == "Claude":
         return generate_image_claude(full_prompt)
-    elif model == "GPT":
-        return generate_image_gpt(full_prompt)
+    elif model == "ChatGPT":
+        return generate_image_gpt(prompt)
     elif model == "DeepSeek":
         return generate_image_deepseek(full_prompt)
     elif model == "硅基流动":

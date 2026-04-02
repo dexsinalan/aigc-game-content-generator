@@ -62,7 +62,7 @@ def translate_text_for_model(text, target_language, model):
         return translate_text_xunfei(prompt)
     elif model == "Claude":
         return translate_text_claude(prompt)
-    elif model == "GPT":
+    elif model == "ChatGPT":
         return translate_text_gpt(prompt)
     elif model == "DeepSeek":
         return translate_text_deepseek(prompt)

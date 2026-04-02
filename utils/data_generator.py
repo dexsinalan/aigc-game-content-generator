@@ -73,7 +73,7 @@ def generate_text_for_data(prompt, model):
         return generate_text_xunfei(prompt)
     elif model == "Claude":
         return generate_text_claude(prompt)
-    elif model == "GPT":
+    elif model == "ChatGPT":
         return generate_text_gpt(prompt)
     elif model == "DeepSeek":
         return generate_text_deepseek(prompt)
@@ -104,8 +104,8 @@ def generate_data_for_model(prompt, model, data_type):
         return generate_data_xunfei(data_prompt, data_type)
     elif model == "Claude":
         return generate_data_claude(data_prompt, data_type)
-    elif model == "GPT":
-        return generate_data_gpt(data_prompt, data_type)
+    elif model == "ChatGPT":
+        return generate_data_gpt(prompt, data_type)
     elif model == "DeepSeek":
         return generate_data_deepseek(data_prompt, data_type)
     elif model == "硅基流动":

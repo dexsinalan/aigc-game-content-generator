@@ -20,7 +20,7 @@
 - 💲 **百度文心一言**：文心大模型，功能全面
 - 💲 **讯飞星火**：星火大模型，支持多种任务
 - 💲 **Claude**：Anthropic的Claude模型
-- 💲 **GPT**：OpenAI的GPT模型
+- 💲 **ChatGPT**：OpenAI的ChatGPT模型
 - 💲 **DeepSeek**：DeepSeek大模型
 - 💲 **硅基流动**：硅基流动大模型
 
@@ -96,7 +96,7 @@ AIGC/
 ### Claude
 访问：[Anthropic控制台](https://console.anthropic.com/)
 
-### GPT
+### ChatGPT
 访问：[OpenAI控制台](https://platform.openai.com/)
 
 ### DeepSeek

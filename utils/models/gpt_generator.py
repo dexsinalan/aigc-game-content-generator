@@ -1,13 +1,14 @@
 import os
 import requests
 
-# GPT文本生成
+# ChatGPT文本生成
+
 def generate_text_gpt(prompt):
-    """使用GPT生成文本"""
-    api_key = os.getenv('GPT_API_KEY')
+    """使用ChatGPT生成文本"""
+    api_key = os.getenv('CHATGPT_API_KEY')
     
     if not api_key:
-        return "请配置GPT API密钥"
+        return "请配置ChatGPT API密钥"
     
     try:
         url = "https://api.openai.com/v1/chat/completions"
@@ -49,13 +50,14 @@ def generate_text_gpt(prompt):
     except Exception as e:
         return f"生成失败：{str(e)}"
 
-# GPT图像生成
+# ChatGPT图像生成
+
 def generate_image_gpt(prompt):
-    """使用GPT生成图像"""
-    api_key = os.getenv('GPT_API_KEY')
+    """使用ChatGPT生成图像"""
+    api_key = os.getenv('CHATGPT_API_KEY')
     
     if not api_key:
-        return "请配置GPT API密钥"
+        return "请配置ChatGPT API密钥"
     
     try:
         url = "https://api.openai.com/v1/images/generations"
@@ -87,13 +89,14 @@ def generate_image_gpt(prompt):
     except Exception as e:
         return f"生成失败：{str(e)}"
 
-# GPT数据生成
-def generate_data_gpt(data_prompt, data_type):
-    """使用GPT生成数据"""
-    api_key = os.getenv('OPENAI_API_KEY')
+# ChatGPT数据生成
+
+def generate_data_gpt(prompt, data_type):
+    """使用ChatGPT生成数据"""
+    api_key = os.getenv('CHATGPT_API_KEY')
     
     if not api_key:
-        return None, "请配置GPT API密钥"
+        return None, "请配置ChatGPT API密钥"
     
     try:
         import json
@@ -153,11 +156,11 @@ def generate_data_gpt(data_prompt, data_type):
         return None, f"生成失败：{str(e)}"
 
 def translate_text_gpt(prompt):
-    """使用GPT翻译文本"""
-    api_key = os.getenv('GPT_API_KEY')
+    """使用ChatGPT翻译文本"""
+    api_key = os.getenv('CHATGPT_API_KEY')
     
     if not api_key:
-        return None, "请配置GPT API密钥"
+        return None, "请配置ChatGPT API密钥"
     
     try:
         result = generate_text_gpt(prompt)
