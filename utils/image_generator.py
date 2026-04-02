@@ -119,14 +119,10 @@ def generate_image_xunfei(prompt):
         host = "spark-api.cn-huabei-1.xf-yun.com"
         request_uri = "/v2.1/tti"
         
-        # 拼接待签名字符串
+        # 拼接待签名字符串（严格按照讯飞官方文档格式）
         signature_origin = f"host: {host}\n"
         signature_origin += f"date: {timestamp}\n"
-        signature_origin += f"POST {request_uri} HTTP/1.1\n"
-        signature_origin += f"content-type:application/json\n"
-        signature_origin += f"app_id:{app_id}\n"
-        signature_origin += f"sign_type:SIGN_TYPE_HMAC_SHA256"
-        
+        signature_origin += f"POST {request_uri} HTTP/1.1"        
         # 生成签名
         signature_sha = hmac.new(api_secret.encode('utf-8'), signature_origin.encode('utf-8'), hashlib.sha256).digest()
         signature = base64.b64encode(signature_sha).decode('utf-8')
@@ -134,10 +130,9 @@ def generate_image_xunfei(prompt):
         # 构建请求头
         headers = {
             'Content-Type': 'application/json',
-            'Authorization': f'api_key="{api_key}", algorithm="hmac-sha256", headers="host date request-line content-type app_id sign_type", signature="{signature}"',
+            'Authorization': f'api_key="{api_key}", algorithm="hmac-sha256", headers="host date request-line", signature="{signature}"',
             'Host': host,
-            'Date': timestamp,
-            'app_id': app_id
+            'Date': timestamp
         }
         
         # 构建请求数据（任务创建）

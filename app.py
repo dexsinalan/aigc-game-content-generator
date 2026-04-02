@@ -119,9 +119,11 @@ with st.expander("📖 应用介绍"):
 
 # ==================== 侧边栏导航 ====================
 
-option = st.sidebar.selectbox(
+option = st.sidebar.radio(
     "选择功能",
-    ("API设置", "文本生成", "图像生成", "数据生成", "API文档")
+    ("API设置", "文本生成", "图像生成", "数据生成", "API文档"),
+    index=0,
+    horizontal=False
 )
 
 # ==================== API设置页面 ====================
