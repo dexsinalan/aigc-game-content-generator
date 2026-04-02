@@ -7,7 +7,7 @@ import base64
 from io import BytesIO
 from dotenv import load_dotenv
 from utils.text_generator import generate_text_baidu, generate_text_ali, generate_text_zhipu, generate_text_xunfei, generate_text_claude, generate_text_gpt, generate_text_deepseek, generate_text_silicon
-from utils.image_generator import generate_image_baidu, generate_image_ali, generate_image_zhipu
+from utils.image_generator import generate_image_baidu, generate_image_ali, generate_image_zhipu, generate_image_xunfei, generate_image_claude, generate_image_gpt, generate_image_deepseek, generate_image_silicon
 from utils.data_generator import generate_json_data, generate_xlsx_data, generate_xmind_data
 
 # 加载环境变量
@@ -66,8 +66,8 @@ def generate_data(prompt, data_type, model):
         return generate_json_data(prompt, model)
     elif data_type == "XLSX":
         return generate_xlsx_data(prompt, model)
-    elif data_type == "XMind":
-        return generate_xmind_data(prompt, model)
+    elif data_type == "mindmap":
+        return generate_mindmap_data(prompt, model)
     else:
         return None, "不支持的数据类型"
 
@@ -227,10 +227,10 @@ if option in ["文本生成", "图像生成", "数据生成"]:
         st.sidebar.success(f"✅ {selected_model} 已配置")
     
     # 显示所有模型的状态
-    with st.sidebar.expander("📋 查看所有模型状态"):
-        for model in all_models:
-            status = "✅ 已配置" if model_status[model] else "❌ 未配置"
-            st.sidebar.write(f"{model}: {status}")
+    st.sidebar.subheader("📋 所有模型状态")
+    for model in all_models:
+        status = "✅ 已配置" if model_status[model] else "❌ 未配置"
+        st.sidebar.write(f"{model}: {status}")
 
 # ==================== 介绍文档页面 ====================
 
@@ -242,7 +242,7 @@ if option == "介绍文档":
     **功能特点：**
     - 📝 文本生成：生成游戏角色描述、剧情对话、任务文本等
     - 🖼️ 图像生成：生成游戏场景、角色设计、道具图标等
-    - 📊 数据生成：生成JSON数据表、Excel表格、XMind思维导图等
+    - 📊 数据生成：生成JSON数据表、Excel表格、mindmap思维导图等
     - 🌐 多模型支持：集成百度文心一言、阿里通义千问、智谱AI、讯飞星火等国产大模型
     - 📚 API文档：提供完整的API接口文档，方便游戏开发直接调用
     
@@ -542,7 +542,7 @@ elif option == "数据生成":
         # 选择数据类型
         data_type = st.selectbox(
             "选择数据格式",
-            ("JSON", "XLSX", "XMind")
+            ("JSON", "XLSX", "mindmap")
         )
         
         col1, col2 = st.columns([1, 4])
@@ -588,12 +588,12 @@ elif option == "数据生成":
                                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                                 )
                             
-                            elif data_type == "XMind":
+                            elif data_type == "mindmap":
                                 # 显示思维导图预览（文本形式）
                                 st.text(data)
                                 # 提供下载按钮
                                 st.download_button(
-                                    label="💾 下载XMind文件",
+                                    label="💾 下载mindmap文件",
                                     data=data,
                                     file_name=filename,
                                     mime="application/xmind"
@@ -649,7 +649,7 @@ elif option == "API文档":
 请求体：
 {
   "prompt": "生成角色属性表",
-  "data_type": "JSON",  // 支持：JSON、XLSX、XMind
+  "data_type": "JSON",  // 支持：JSON、XLSX、mindmap
   "model": "百度文心一言"  // 支持：百度文心一言、阿里通义千问、智谱AI、讯飞星火
 }
 
