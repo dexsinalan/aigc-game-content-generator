@@ -46,8 +46,8 @@ BAIDU_SECRET_KEY=你的百度文心一言Secret密钥
 点击"Deploy"按钮，等待部署完成（通常需要1-2分钟）
 
 ### 6. 访问应用
-部署成功后，您将获得一个类似这样的URL：
-`https://你的用户名-aigc-game-content-generator-app.streamlit.app`
+部署成功后，您可以通过以下地址访问应用：
+`https://aigcsysu.streamlit.app`
 
 ## 注意事项
 

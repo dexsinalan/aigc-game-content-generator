@@ -6,7 +6,7 @@ import pandas as pd
 import base64
 from io import BytesIO
 from dotenv import load_dotenv
-from utils.text_generator import generate_text_baidu, generate_text_ali, generate_text_zhipu, generate_text_xunfei
+from utils.text_generator import generate_text_baidu, generate_text_ali, generate_text_zhipu, generate_text_xunfei, generate_text_claude, generate_text_gpt, generate_text_deepseek, generate_text_silicon
 from utils.image_generator import generate_image_baidu, generate_image_ali, generate_image_zhipu
 from utils.data_generator import generate_json_data, generate_xlsx_data, generate_xmind_data
 
@@ -284,6 +284,9 @@ if option == "API设置":
     
     # 阿里通义千问配置
     with st.expander("阿里通义千问"):
+        st.info("💡 提示：请使用阿里通义千问API")
+        st.write("获取方式：登录阿里云计算平台控制台，创建API密钥")
+        st.markdown("[阿里通义千问控制台](https://dashscope.aliyun.com/)")
         ali_api_key = st.text_input("API Key", 
                                     value=st.session_state.api_keys['ali']['api_key'],
                                     type="password", 
@@ -296,6 +299,9 @@ if option == "API设置":
     
     # 智谱AI配置
     with st.expander("智谱AI"):
+        st.info("💡 提示：请使用智谱AI API")
+        st.write("获取方式：登录智谱AI开放平台，创建API密钥")
+        st.markdown("[智谱AI开放平台](https://open.bigmodel.cn/)")
         zhipu_api_key = st.text_input("API Key", 
                                       value=st.session_state.api_keys['zhipu']['api_key'],
                                       type="password", 
@@ -312,6 +318,9 @@ if option == "API设置":
     
     # 百度文心一言配置
     with st.expander("百度文心一言"):
+        st.info("💡 提示：请使用百度文心一言API")
+        st.write("获取方式：登录百度AI开放平台，创建API密钥")
+        st.markdown("[百度AI开放平台](https://ai.baidu.com/)")
         baidu_api_key = st.text_input("API Key", 
                                       value=st.session_state.api_keys['baidu']['api_key'],
                                       type="password", 
@@ -333,6 +342,7 @@ if option == "API设置":
     with st.expander("讯飞星火"):
         st.info("💡 提示：请使用讯飞星火的 HiDream 图像生成 API 配置")
         st.write("获取方式：登录讯飞开放平台控制台，在「星火大模型」的设置页面中获取")
+        st.markdown("[讯飞开放平台](https://xinghuo.xfyun.cn/)")
         xunfei_app_id = st.text_input("APP ID", 
                                        value=st.session_state.api_keys['xunfei']['app_id'],
                                        type="password", 
@@ -361,6 +371,7 @@ if option == "API设置":
     with st.expander("Claude"):
         st.info("💡 提示：请使用Anthropic的Claude API")
         st.write("获取方式：登录Anthropic控制台，创建API密钥")
+        st.markdown("[Anthropic控制台](https://console.anthropic.com/)")
         claude_api_key = st.text_input("API Key", 
                                       value=st.session_state.api_keys.get('claude', {}).get('api_key', ''),
                                       type="password", 
@@ -375,8 +386,9 @@ if option == "API设置":
     
     # GPT配置
     with st.expander("GPT"):
-        st.info("� 提示：请使用OpenAI的GPT API")
+        st.info("💡 提示：请使用OpenAI的GPT API")
         st.write("获取方式：登录OpenAI控制台，创建API密钥")
+        st.markdown("[OpenAI控制台](https://platform.openai.com/)")
         gpt_api_key = st.text_input("API Key", 
                                     value=st.session_state.api_keys.get('gpt', {}).get('api_key', ''),
                                     type="password", 
@@ -393,6 +405,7 @@ if option == "API设置":
     with st.expander("DeepSeek"):
         st.info("💡 提示：请使用DeepSeek的API")
         st.write("获取方式：登录DeepSeek控制台，创建API密钥")
+        st.markdown("[DeepSeek控制台](https://platform.deepseek.com/)")
         deepseek_api_key = st.text_input("API Key", 
                                          value=st.session_state.api_keys.get('deepseek', {}).get('api_key', ''),
                                          type="password", 
@@ -409,6 +422,7 @@ if option == "API设置":
     with st.expander("硅基流动"):
         st.info("💡 提示：请使用硅基流动的API")
         st.write("获取方式：登录硅基流动控制台，创建API密钥")
+        st.markdown("[硅基流动控制台](https://cloud.siliconflow.cn/)")
         silicon_api_key = st.text_input("API Key", 
                                         value=st.session_state.api_keys.get('silicon', {}).get('api_key', ''),
                                         type="password", 

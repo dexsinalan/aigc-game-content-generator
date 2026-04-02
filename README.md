@@ -7,17 +7,22 @@
 - 📝 **文本生成**：生成角色描述、剧情对话、任务文本等
 - 🖼️ **图像生成**：生成游戏素材、角色立绘、场景图等
 - 📊 **数据生成**：生成JSON、XLSX、XMind格式的游戏数据
-- 🔑 **多模型支持**：集成多个国产大模型API
+- 🔑 **多模型支持**：集成多个AI模型API
+- 📚 **API文档**：提供完整的API接口文档
 
 ## 支持的AI模型
 
 ### 免费API
 - 🆓 **阿里通义千问**：强大的文本和图像生成能力
 - 🆓 **智谱AI**：GLM-4大模型，性能优秀
-- 🆓 **讯飞星火**：星火大模型，支持多种任务
 
 ### 付费API
 - 💲 **百度文心一言**：文心大模型，功能全面
+- 💲 **讯飞星火**：星火大模型，支持多种任务
+- 💲 **Claude**：Anthropic的Claude模型
+- 💲 **GPT**：OpenAI的GPT模型
+- 💲 **DeepSeek**：DeepSeek大模型
+- 💲 **硅基流动**：硅基流动大模型
 
 ## 快速开始
 
@@ -29,13 +34,34 @@ pip install -r requirements.txt
 ```
 
 2. **配置API密钥**
-复制`.env.example`为`.env`，填入您的API密钥：
+创建`.env`文件，填入您的API密钥：
 ```
+# 阿里通义千问
 ALI_API_KEY=你的阿里API密钥
+
+# 智谱AI
 ZHIPU_API_KEY=你的智谱API密钥
-XUNFEI_API_KEY=你的讯飞API密钥
+
+# 百度文心一言
 BAIDU_API_KEY=你的百度API密钥
 BAIDU_SECRET_KEY=你的百度Secret密钥
+
+# 讯飞星火
+XUNFEI_APP_ID=你的讯飞APP ID
+XUNFEI_API_KEY=你的讯飞API Key
+XUNFEI_API_SECRET=你的讯飞API Secret
+
+# Claude
+CLAUDE_API_KEY=你的Claude API密钥
+
+# GPT
+GPT_API_KEY=你的GPT API密钥
+
+# DeepSeek
+DEEPSEEK_API_KEY=你的DeepSeek API密钥
+
+# 硅基流动
+SILICON_API_KEY=你的硅基流动API密钥
 ```
 
 3. **运行应用**
@@ -44,7 +70,7 @@ streamlit run app.py
 ```
 
 4. **访问应用**
-打开浏览器访问：`http://localhost:8501`
+打开浏览器访问：`http://localhost:8502`
 
 ## 在线部署
 
@@ -54,6 +80,7 @@ streamlit run app.py
 - 免费托管
 - 自动部署
 - 无需服务器管理
+- 在线访问地址：[aigcsysu.streamlit.app](https://aigcsysu.streamlit.app)
 
 ## 使用说明
 
@@ -75,6 +102,12 @@ streamlit run app.py
 3. 选择AI模型
 4. 点击"生成数据"
 5. 下载生成的文件
+
+### API设置
+1. 在侧边栏选择"API设置"
+2. 为每个模型填写对应的API密钥
+3. 点击"保存配置"按钮
+4. 或使用"保存所有配置"一键保存
 
 ## 项目结构
 
@@ -103,16 +136,28 @@ AIGC/
 ## API密钥获取
 
 ### 阿里通义千问
-访问：https://tongyi.aliyun.com/
+访问：[阿里通义千问控制台](https://dashscope.aliyun.com/)
 
 ### 智谱AI
-访问：https://open.bigmodel.cn/
-
-### 讯飞星火
-访问：https://xinghuo.xfyun.cn/
+访问：[智谱AI开放平台](https://open.bigmodel.cn/)
 
 ### 百度文心一言
-访问：https://ai.baidu.com/
+访问：[百度AI开放平台](https://ai.baidu.com/)
+
+### 讯飞星火
+访问：[讯飞开放平台](https://xinghuo.xfyun.cn/)
+
+### Claude
+访问：[Anthropic控制台](https://console.anthropic.com/)
+
+### GPT
+访问：[OpenAI控制台](https://platform.openai.com/)
+
+### DeepSeek
+访问：[DeepSeek控制台](https://platform.deepseek.com/)
+
+### 硅基流动
+访问：[硅基流动控制台](https://cloud.siliconflow.cn/)
 
 ## 注意事项
 
