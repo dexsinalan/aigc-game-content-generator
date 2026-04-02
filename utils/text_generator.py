@@ -132,7 +132,7 @@ def generate_text_xunfei(prompt):
             'Authorization': f'Bearer {api_key}'
         }
         data = {
-            "model": "lite",  # 使用正确的模型代码
+            "model": "ULTRA32K",  # 使用用户提供的可用模型
             "messages": [
                 {
                     "role": "user",

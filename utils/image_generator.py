@@ -114,7 +114,7 @@ def generate_image_xunfei(prompt):
             'Authorization': f'Bearer {api_key}'
         }
         data = {
-            "model": "tt-v1.1",  # 使用正确的图像生成模型代码
+            "model": "ULTRA32K",  # 使用用户提供的可用模型
             "prompt": prompt,
             "n": 1,
             "size": "1024x1024"
