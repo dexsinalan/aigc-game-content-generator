@@ -531,6 +531,12 @@ elif option == "数据生成":
         if 'generated_data_type' not in st.session_state:
             st.session_state.generated_data_type = None
         
+        # 当数据格式切换时，清除之前生成的数据，减少卡顿
+        if st.session_state.generated_data_type and st.session_state.generated_data_type != data_type:
+            st.session_state.generated_data = None
+            st.session_state.generated_filename = None
+            st.session_state.generated_data_type = None
+        
         # 生成按钮和操作按钮区域
         col1, col2, col3 = st.columns([1, 1, 2])
         with col1:
