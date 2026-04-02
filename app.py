@@ -495,6 +495,14 @@ elif option == "文本生成":
             st.markdown("### 生成结果")
             st.write(st.session_state.generated_text)
             st.code(st.session_state.generated_text, language="text")
+            
+            # 保存按钮
+            st.download_button(
+                label="💾 保存文本",
+                data=st.session_state.generated_text,
+                file_name=f"generated_text_{st.session_state.selected_model}.txt",
+                mime="text/plain"
+            )
         
         if generate_btn:
             if not prompt:
@@ -578,7 +586,7 @@ elif option == "图像生成":
                 response = requests.get(st.session_state.generated_image)
                 if response.status_code == 200:
                     st.download_button(
-                        label="💾 下载图像",
+                        label="💾 保存图像",
                         data=response.content,
                         file_name=f"generated_image_{st.session_state.selected_model}.png",
                         mime="image/png"
@@ -933,5 +941,51 @@ elif option == "致谢":
     
     **指导老师:** 
     """)
+
+# ==================== 回到顶部按钮 ====================
+
+# 添加回到顶部按钮
+st.markdown("""
+<style>
+.back-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 9999;
+    background-color: #4CAF50;
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.back-to-top:hover {
+    background-color: #45a049;
+    transform: translateY(-5px);
+}
+
+.back-to-top svg {
+    width: 24px;
+    height: 24px;
+}
+</style>
+
+<script>
+function scrollToTop() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
+</script>
+
+<div class="back-to-top" onclick="scrollToTop()"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" /></svg></div>
+""", unsafe_allow_html=True)
 
 
