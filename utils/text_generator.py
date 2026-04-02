@@ -1,4 +1,5 @@
 # 从各个模型文件导入文本生成函数
+import time
 from utils.models.ali_generator import generate_text_ali
 from utils.models.baidu_generator import generate_text_baidu
 from utils.models.zhipu_generator import generate_text_zhipu
@@ -25,21 +26,45 @@ def generate_text_for_model(prompt, model):
     # 构建完整的prompt
     full_prompt = TEXT_PROMPT.format(prompt=prompt)
     
+    # 开始计时
+    start_time = time.time()
+    
+    result = None
+    tokens = 0
+    
     if model == "百度文心一言":
-        return generate_text_baidu(full_prompt)
+        result = generate_text_baidu(full_prompt)
     elif model == "阿里通义千问":
-        return generate_text_ali(full_prompt)
+        result = generate_text_ali(full_prompt)
     elif model == "智谱AI":
-        return generate_text_zhipu(full_prompt)
+        result = generate_text_zhipu(full_prompt)
     elif model == "讯飞星火":
-        return generate_text_xunfei(full_prompt)
+        result = generate_text_xunfei(full_prompt)
     elif model == "Claude":
-        return generate_text_claude(full_prompt)
+        result = generate_text_claude(full_prompt)
     elif model == "ChatGPT":
-        return generate_text_gpt(full_prompt)
+        result = generate_text_gpt(full_prompt)
     elif model == "DeepSeek":
-        return generate_text_deepseek(full_prompt)
+        result = generate_text_deepseek(full_prompt)
     elif model == "硅基流动":
-        return generate_text_silicon(full_prompt)
+        result = generate_text_silicon(full_prompt)
     else:
-        return "不支持的模型"
+        result = "不支持的模型"
+    
+    # 结束计时
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    
+    # 计算Token消耗（简化计算，实际应该根据模型返回的使用情况）
+    # 这里使用一个简单的估算：每个中文字符算2个Token，每个英文字符算1个Token
+    if isinstance(result, str):
+        # 计算中文字符数
+        chinese_chars = sum(1 for char in result if '\u4e00' <= char <= '\u9fff')
+        # 计算英文字符数
+        english_chars = sum(1 for char in result if 'a' <= char.lower() <= 'z')
+        # 计算其他字符数
+        other_chars = len(result) - chinese_chars - english_chars
+        # 估算Token数
+        tokens = chinese_chars * 2 + english_chars + other_chars
+    
+    return result, elapsed_time, tokens

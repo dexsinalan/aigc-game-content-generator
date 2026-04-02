@@ -1,4 +1,5 @@
 # 从各个模型文件导入图像生成函数
+import time
 from utils.models.ali_generator import generate_image_ali
 from utils.models.baidu_generator import generate_image_baidu
 from utils.models.zhipu_generator import generate_image_zhipu
@@ -25,21 +26,37 @@ def generate_image_for_model(prompt, model):
     # 构建完整的prompt
     full_prompt = IMAGE_PROMPT.format(prompt=prompt)
     
+    # 开始计时
+    start_time = time.time()
+    
+    result = None
+    tokens = 0
+    
     if model == "百度文心一言":
-        return generate_image_baidu(full_prompt)
+        result = generate_image_baidu(full_prompt)
     elif model == "阿里通义千问":
-        return generate_image_ali(full_prompt)
+        result = generate_image_ali(full_prompt)
     elif model == "智谱AI":
-        return generate_image_zhipu(full_prompt)
+        result = generate_image_zhipu(full_prompt)
     elif model == "讯飞星火":
-        return generate_image_xunfei(full_prompt)
+        result = generate_image_xunfei(full_prompt)
     elif model == "Claude":
-        return generate_image_claude(full_prompt)
+        result = generate_image_claude(full_prompt)
     elif model == "ChatGPT":
-        return generate_image_gpt(prompt)
+        result = generate_image_gpt(prompt)
     elif model == "DeepSeek":
-        return generate_image_deepseek(full_prompt)
+        result = generate_image_deepseek(full_prompt)
     elif model == "硅基流动":
-        return generate_image_silicon(full_prompt)
+        result = generate_image_silicon(full_prompt)
     else:
-        return None, "不支持的模型"
+        result = "不支持的模型"
+    
+    # 结束计时
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    
+    # 计算Token消耗（简化计算，实际应该根据模型返回的使用情况）
+    # 对于图像生成，我们使用一个固定的估算值
+    tokens = 1000  # 假设图像生成消耗约1000个Token
+    
+    return result, elapsed_time, tokens

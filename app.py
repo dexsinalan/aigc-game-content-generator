@@ -11,6 +11,7 @@ from utils.text_generator import generate_text_for_model
 from utils.image_generator import generate_image_for_model
 from utils.data_generator import generate_json_data, generate_xlsx_data, generate_mindmap_data
 from utils.translation_generator import translate_text_for_model, SUPPORTED_LANGUAGES
+from utils.prompt_templates import TEXT_TEMPLATES, IMAGE_TEMPLATES, DATA_TEMPLATES
 
 # 加载环境变量
 load_dotenv()
@@ -37,7 +38,7 @@ def generate_data(prompt, data_type, model):
     elif data_type == "mindmap":
         return generate_mindmap_data(prompt, model)
     else:
-        return None, "不支持的数据类型"
+        return None, "不支持的数据类型", 0, 0
 
 # 初始化session state
 def init_session_state():
@@ -474,8 +475,15 @@ elif option == "文本生成":
     if not check_api_configured(st.session_state.selected_model):
         st.warning(f"⚠️ {st.session_state.selected_model} 的API密钥未配置，请在侧边栏选择其他模型或前往「API设置」页面配置")
     else:
+        # 提示词模板库
+        st.subheader("🎨 提示词模板库")
+        template_category = st.selectbox("选择模板类型", list(TEXT_TEMPLATES.keys()))
+        if st.button("📋 应用模板"):
+            st.session_state.text_prompt = TEXT_TEMPLATES[template_category]
+        
         # 输入提示词
-        prompt = st.text_area("提示词", placeholder="例如：游戏角色描述、剧情对话、任务文本等", height=150)
+        prompt = st.text_area("提示词", value=st.session_state.get('text_prompt', ''), placeholder="例如：游戏角色描述、剧情对话、任务文本等", height=150)
+        st.session_state.text_prompt = prompt
         
         col1, col2 = st.columns([1, 4])
         with col1:
@@ -495,7 +503,7 @@ elif option == "文本生成":
                 with st.spinner("生成中..."):
                     try:
                         # 调用文本生成函数
-                        result = generate_text(prompt, st.session_state.selected_model)
+                        result, elapsed_time, tokens = generate_text(prompt, st.session_state.selected_model)
                         # 保存结果到会话状态
                         st.session_state.generated_text = result
                         # 直接显示结果，不需要刷新页面
@@ -503,6 +511,8 @@ elif option == "文本生成":
                         st.markdown("### 生成结果")
                         st.write(result)
                         st.code(result, language="text")
+                        # 显示耗时和Token消耗
+                        st.info(f"本次耗时：{elapsed_time:.2f}秒 | 消耗Token：{tokens}")
                     except Exception as e:
                         st.error(f"生成失败：{str(e)}")
 
@@ -516,8 +526,42 @@ elif option == "图像生成":
     if not check_api_configured(st.session_state.selected_model):
         st.warning(f"⚠️ {st.session_state.selected_model} 的API密钥未配置，请在侧边栏选择其他模型或前往「API设置」页面配置")
     else:
+        # 提示词模板库
+        st.subheader("🎨 提示词模板库")
+        template_category = st.selectbox("选择模板类型", list(IMAGE_TEMPLATES.keys()))
+        
+        # 根据模板类型显示不同的参数输入
+        template_params = {}
+        if template_category == "游戏角色设计":
+            template_params["角色类型"] = st.text_input("角色类型", "战士")
+            template_params["风格"] = st.text_input("风格", "奇幻")
+            template_params["颜色风格"] = st.text_input("颜色风格", "暗色调")
+        elif template_category == "游戏场景设计":
+            template_params["场景类型"] = st.text_input("场景类型", "城堡")
+            template_params["风格"] = st.text_input("风格", "中世纪")
+            template_params["氛围"] = st.text_input("氛围", "神秘")
+        elif template_category == "游戏道具设计":
+            template_params["道具类型"] = st.text_input("道具类型", "武器")
+            template_params["风格"] = st.text_input("风格", "魔法")
+            template_params["用途"] = st.text_input("用途", "战斗")
+        elif template_category == "游戏UI元素":
+            template_params["元素类型"] = st.text_input("元素类型", "按钮")
+            template_params["风格"] = st.text_input("风格", "科幻")
+            template_params["功能"] = st.text_input("功能", "确认")
+        elif template_category == "游戏图标设计":
+            template_params["图标类型"] = st.text_input("图标类型", "技能")
+            template_params["风格"] = st.text_input("风格", "扁平化")
+            template_params["主题"] = st.text_input("主题", "火焰")
+        
+        if st.button("📋 应用模板"):
+            # 填充模板参数
+            template = IMAGE_TEMPLATES[template_category]
+            filled_template = template.format(**template_params)
+            st.session_state.image_prompt = filled_template
+        
         # 输入提示词
-        prompt = st.text_area("提示词", placeholder="例如：游戏场景、角色设计、道具图标等", height=150)
+        prompt = st.text_area("提示词", value=st.session_state.get('image_prompt', ''), placeholder="例如：游戏场景、角色设计、道具图标等", height=150)
+        st.session_state.image_prompt = prompt
         
         col1, col2 = st.columns([1, 4])
         with col1:
@@ -547,7 +591,7 @@ elif option == "图像生成":
                 with st.spinner("生成中..."):
                     try:
                         # 调用图像生成函数
-                        image_url = generate_image(prompt, st.session_state.selected_model)
+                        image_url, elapsed_time, tokens = generate_image(prompt, st.session_state.selected_model)
                         # 保存结果到会话状态
                         st.session_state.generated_image = image_url
                         # 直接显示结果，不需要刷新页面
@@ -565,6 +609,8 @@ elif option == "图像生成":
                                     file_name=f"generated_image_{st.session_state.selected_model}.png",
                                     mime="image/png"
                                 )
+                        # 显示耗时和Token消耗
+                        st.info(f"本次耗时：{elapsed_time:.2f}秒 | 消耗Token：{tokens}")
                     except Exception as e:
                         st.error(f"生成失败：{str(e)}")
 
@@ -578,8 +624,15 @@ elif option == "数据生成":
     if not check_api_configured(st.session_state.selected_model):
         st.warning(f"⚠️ {st.session_state.selected_model} 的API密钥未配置，请在侧边栏选择其他模型或前往「API设置」页面配置")
     else:
+        # 提示词模板库
+        st.subheader("🎨 提示词模板库")
+        template_category = st.selectbox("选择模板类型", list(DATA_TEMPLATES.keys()))
+        if st.button("📋 应用模板"):
+            st.session_state.data_prompt = DATA_TEMPLATES[template_category]
+        
         # 输入提示词
-        prompt = st.text_area("提示词", placeholder="例如：生成一个RPG游戏的角色属性表，包含名称、等级、生命值、攻击力等字段", height=150)
+        prompt = st.text_area("提示词", value=st.session_state.get('data_prompt', ''), placeholder="例如：生成一个RPG游戏的角色属性表，包含名称、等级、生命值、攻击力等字段", height=150)
+        st.session_state.data_prompt = prompt
         
         # 选择数据类型
         data_type = st.selectbox(
@@ -656,7 +709,7 @@ elif option == "数据生成":
                 with st.spinner("生成中..."):
                     try:
                         # 调用数据生成函数
-                        data, filename = generate_data(prompt, data_type, st.session_state.selected_model)
+                        data, filename, elapsed_time, tokens = generate_data(prompt, data_type, st.session_state.selected_model)
                         
                         if data is not None:
                             # 保存生成的数据到会话状态
@@ -703,6 +756,8 @@ elif option == "数据生成":
                                         file_name=filename,
                                         mime="application/xmind"
                                     )
+                            # 显示耗时和Token消耗
+                            st.info(f"本次耗时：{elapsed_time:.2f}秒 | 消耗Token：{tokens}")
                         else:
                             st.error(filename)  # 显示错误信息
                             

@@ -1,5 +1,6 @@
 import json
 import os
+import time
 import pandas as pd
 from io import BytesIO
 # 从各个模型文件导入文本生成和数据生成函数
@@ -92,26 +93,65 @@ def generate_data_for_model(prompt, model, data_type):
     elif data_type == "mindmap":
         data_prompt = MINDMAP_PROMPT.format(prompt=prompt)
     else:
-        return None, "不支持的数据类型"
+        return None, "不支持的数据类型", 0, 0
+    
+    # 开始计时
+    start_time = time.time()
+    
+    result = None
+    filename = None
+    tokens = 0
     
     if model == "百度文心一言":
-        return generate_data_baidu(data_prompt, data_type)
+        result, filename = generate_data_baidu(data_prompt, data_type)
     elif model == "阿里通义千问":
-        return generate_data_ali(data_prompt, data_type)
+        result, filename = generate_data_ali(data_prompt, data_type)
     elif model == "智谱AI":
-        return generate_data_zhipu(data_prompt, data_type)
+        result, filename = generate_data_zhipu(data_prompt, data_type)
     elif model == "讯飞星火":
-        return generate_data_xunfei(data_prompt, data_type)
+        result, filename = generate_data_xunfei(data_prompt, data_type)
     elif model == "Claude":
-        return generate_data_claude(data_prompt, data_type)
+        result, filename = generate_data_claude(data_prompt, data_type)
     elif model == "ChatGPT":
-        return generate_data_gpt(prompt, data_type)
+        result, filename = generate_data_gpt(prompt, data_type)
     elif model == "DeepSeek":
-        return generate_data_deepseek(data_prompt, data_type)
+        result, filename = generate_data_deepseek(data_prompt, data_type)
     elif model == "硅基流动":
-        return generate_data_silicon(data_prompt, data_type)
+        result, filename = generate_data_silicon(data_prompt, data_type)
     else:
-        return None, "不支持的模型"
+        return None, "不支持的模型", 0, 0
+    
+    # 结束计时
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    
+    # 计算Token消耗（简化计算，实际应该根据模型返回的使用情况）
+    # 这里使用一个简单的估算：每个中文字符算2个Token，每个英文字符算1个Token
+    if isinstance(result, str):
+        # 计算中文字符数
+        chinese_chars = sum(1 for char in result if '\u4e00' <= char <= '\u9fff')
+        # 计算英文字符数
+        english_chars = sum(1 for char in result if 'a' <= char.lower() <= 'z')
+        # 计算其他字符数
+        other_chars = len(result) - chinese_chars - english_chars
+        # 估算Token数
+        tokens = chinese_chars * 2 + english_chars + other_chars
+    elif isinstance(result, dict) or isinstance(result, list):
+        # 对于JSON数据，将其转换为字符串后计算
+        result_str = json.dumps(result, ensure_ascii=False)
+        chinese_chars = sum(1 for char in result_str if '\u4e00' <= char <= '\u9fff')
+        english_chars = sum(1 for char in result_str if 'a' <= char.lower() <= 'z')
+        other_chars = len(result_str) - chinese_chars - english_chars
+        tokens = chinese_chars * 2 + english_chars + other_chars
+    elif isinstance(result, pd.DataFrame):
+        # 对于DataFrame，将其转换为字符串后计算
+        result_str = result.to_string()
+        chinese_chars = sum(1 for char in result_str if '\u4e00' <= char <= '\u9fff')
+        english_chars = sum(1 for char in result_str if 'a' <= char.lower() <= 'z')
+        other_chars = len(result_str) - chinese_chars - english_chars
+        tokens = chinese_chars * 2 + english_chars + other_chars
+    
+    return result, filename, elapsed_time, tokens
 
 def generate_json_data(prompt, model):
     """生成JSON格式的数据"""
