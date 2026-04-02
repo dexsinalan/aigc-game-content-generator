@@ -450,8 +450,11 @@ elif option == "文本生成":
                         result = generate_text(prompt, st.session_state.selected_model)
                         # 保存结果到会话状态
                         st.session_state.generated_text = result
-                        # 刷新页面以显示结果
-                        st.experimental_rerun()
+                        # 直接显示结果，不需要刷新页面
+                        st.success("生成成功！")
+                        st.markdown("### 生成结果")
+                        st.write(result)
+                        st.code(result, language="text")
                     except Exception as e:
                         st.error(f"生成失败：{str(e)}")
 
@@ -595,16 +598,50 @@ elif option == "数据生成":
                         data, filename = generate_data(prompt, data_type, st.session_state.selected_model)
                         
                         if data is not None:
-                            st.success("生成成功！")
-                            st.markdown("### 生成结果")
-                            
                             # 保存生成的数据到会话状态
                             st.session_state.generated_data = data
                             st.session_state.generated_filename = filename
                             st.session_state.generated_data_type = data_type
                             
-                            # 刷新页面以显示下载按钮
-                            st.experimental_rerun()
+                            # 直接显示结果和下载按钮，不需要刷新页面
+                            st.success("生成成功！")
+                            st.markdown("### 生成结果")
+                            
+                            # 显示生成结果
+                            if data_type == "JSON":
+                                st.json(data)
+                            elif data_type == "XLSX":
+                                st.dataframe(data)
+                            elif data_type == "mindmap":
+                                st.text(data)
+                            
+                            # 下载按钮
+                            with col2:
+                                if data_type == "JSON":
+                                    json_str = json.dumps(data, ensure_ascii=False, indent=2)
+                                    st.download_button(
+                                        label="💾 下载当前数据",
+                                        data=json_str,
+                                        file_name=filename,
+                                        mime="application/json"
+                                    )
+                                elif data_type == "XLSX":
+                                    buffer = BytesIO()
+                                    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+                                        data.to_excel(writer, index=False, sheet_name='Sheet1')
+                                    st.download_button(
+                                        label="💾 下载当前数据",
+                                        data=buffer.getvalue(),
+                                        file_name=filename,
+                                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                    )
+                                elif data_type == "mindmap":
+                                    st.download_button(
+                                        label="💾 下载当前数据",
+                                        data=data,
+                                        file_name=filename,
+                                        mime="application/xmind"
+                                    )
                         
 
                         else:
