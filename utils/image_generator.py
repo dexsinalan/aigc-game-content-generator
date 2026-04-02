@@ -114,7 +114,7 @@ def generate_image_xunfei(prompt):
             'Authorization': f'Bearer {api_key}'
         }
         data = {
-            "model": "max",  # 使用max模型，可根据需要调整
+            "model": "spark-doubao",  # 使用正确的模型名称
             "prompt": prompt,
             "n": 1,
             "size": "1024x1024"

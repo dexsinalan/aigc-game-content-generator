@@ -132,7 +132,7 @@ def generate_text_xunfei(prompt):
             'Authorization': f'Bearer {api_key}'
         }
         data = {
-            "model": "max",  # 使用max模型，可根据需要调整
+            "model": "spark-doubao",  # 使用正确的模型名称
             "messages": [
                 {
                     "role": "user",
