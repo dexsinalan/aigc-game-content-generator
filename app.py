@@ -94,8 +94,51 @@ def init_session_state():
                         'app_id': os.getenv('XUNFEI_APP_ID', ''),
                         'api_key': os.getenv('XUNFEI_API_KEY', ''),
                         'api_secret': os.getenv('XUNFEI_API_SECRET', '')
-                    }
+                    },
+            'claude': {
+                'api_key': os.getenv('CLAUDE_API_KEY', '')
+            },
+            'gpt': {
+                'api_key': os.getenv('GPT_API_KEY', '')
+            },
+            'deepseek': {
+                'api_key': os.getenv('DEEPSEEK_API_KEY', '')
+            },
+            'silicon': {
+                'api_key': os.getenv('SILICON_API_KEY', '')
+            }
         }
+    if 'selected_model' not in st.session_state:
+        st.session_state.selected_model = "阿里通义千问"  # 默认选择免费模型
+
+# 检查API密钥是否配置
+def check_api_configured(model_name):
+    """检查指定模型的API密钥是否已配置"""
+    api_keys = st.session_state.api_keys
+    
+    model_map = {
+        "百度文心一言": 'baidu',
+        "阿里通义千问": 'ali',
+        "智谱AI": 'zhipu',
+        "讯飞星火": 'xunfei',
+        "Claude": 'claude',
+        "GPT": 'gpt',
+        "DeepSeek": 'deepseek',
+        "硅基流动": 'silicon'
+    }
+    
+    provider = model_map.get(model_name)
+    if not provider:
+        return False
+    
+    keys = api_keys.get(provider, {})
+    
+    if provider == 'baidu':
+        return bool(keys.get('api_key') and keys.get('secret_key'))
+    elif provider == 'xunfei':
+        return bool(keys.get('app_id') and keys.get('api_key') and keys.get('api_secret'))
+    else:
+        return bool(keys.get('api_key'))
 
 # ==================== 页面配置 ====================
 
@@ -146,6 +189,48 @@ elif api_docs_btn:
 
 # 设置当前选项
 option = st.session_state.current_page
+
+# ==================== 模型选择 ====================
+if option in ["文本生成", "图像生成", "数据生成"]:
+    st.sidebar.divider()
+    st.sidebar.subheader("🤖 模型选择")
+    
+    # 定义所有模型
+    all_models = ["百度文心一言", "阿里通义千问", "智谱AI", "讯飞星火", "Claude", "GPT", "DeepSeek", "硅基流动"]
+    
+    # 检查每个模型的API配置状态
+    model_status = {}
+    for model in all_models:
+        model_status[model] = check_api_configured(model)
+    
+    # 创建模型选项列表（已配置的在前，未配置的在后）
+    configured_models = [model for model in all_models if model_status[model]]
+    unconfigured_models = [model for model in all_models if not model_status[model]]
+    ordered_models = configured_models + unconfigured_models
+    
+    # 显示模型选择
+    selected_model = st.sidebar.selectbox(
+        "选择AI模型",
+        ordered_models,
+        index=ordered_models.index(st.session_state.selected_model) if st.session_state.selected_model in ordered_models else 0,
+        key="model_selector"
+    )
+    
+    # 更新选择的模型
+    st.session_state.selected_model = selected_model
+    
+    # 显示API配置提示
+    if not model_status[selected_model]:
+        st.sidebar.warning(f"⚠️ {selected_model} 的API密钥未配置")
+        st.sidebar.info("请在「API设置」页面配置API密钥")
+    else:
+        st.sidebar.success(f"✅ {selected_model} 已配置")
+    
+    # 显示所有模型的状态
+    with st.sidebar.expander("📋 查看所有模型状态"):
+        for model in all_models:
+            status = "✅ 已配置" if model_status[model] else "❌ 未配置"
+            st.sidebar.write(f"{model}: {status}")
 
 # ==================== 介绍文档页面 ====================
 
@@ -349,35 +434,33 @@ elif option == "文本生成":
     st.header("📝 AI文本生成")
     st.write("输入提示词，生成游戏相关的文本内容，如角色描述、剧情对话、任务文本等。")
     
-    # 输入提示词
-    prompt = st.text_area("提示词", placeholder="例如：游戏角色描述、剧情对话、任务文本等", height=150)
-    
-    # 选择模型
-    model = st.selectbox(
-        "选择模型",
-        ("百度文心一言", "阿里通义千问", "智谱AI", "讯飞星火", "Claude", "GPT", "DeepSeek", "硅基流动")
-    )
-    
-    col1, col2 = st.columns([1, 4])
-    with col1:
-        generate_btn = st.button("🚀 生成文本", type="primary")
-    
-    if generate_btn:
-        if not prompt:
-            st.error("请输入提示词")
-        else:
-            with st.spinner("生成中..."):
-                try:
-                    # 调用文本生成函数
-                    result = generate_text(prompt, model)
-                    st.success("生成成功！")
-                    st.markdown("### 生成结果")
-                    st.write(result)
-                    
-                    # 提供复制按钮
-                    st.code(result, language="text")
-                except Exception as e:
-                    st.error(f"生成失败：{str(e)}")
+    # 检查API是否配置
+    if not check_api_configured(st.session_state.selected_model):
+        st.warning(f"⚠️ {st.session_state.selected_model} 的API密钥未配置，请在侧边栏选择其他模型或前往「API设置」页面配置")
+    else:
+        # 输入提示词
+        prompt = st.text_area("提示词", placeholder="例如：游戏角色描述、剧情对话、任务文本等", height=150)
+        
+        col1, col2 = st.columns([1, 4])
+        with col1:
+            generate_btn = st.button("🚀 生成文本", type="primary")
+        
+        if generate_btn:
+            if not prompt:
+                st.error("请输入提示词")
+            else:
+                with st.spinner("生成中..."):
+                    try:
+                        # 调用文本生成函数
+                        result = generate_text(prompt, st.session_state.selected_model)
+                        st.success("生成成功！")
+                        st.markdown("### 生成结果")
+                        st.write(result)
+                        
+                        # 提供复制按钮
+                        st.code(result, language="text")
+                    except Exception as e:
+                        st.error(f"生成失败：{str(e)}")
 
 # ==================== 图像生成功能 ====================
 
@@ -385,43 +468,41 @@ elif option == "图像生成":
     st.header("🖼️ AI图像生成")
     st.write("输入提示词，生成游戏相关的图像内容，如游戏场景、角色设计、道具图标等。")
     
-    # 输入提示词
-    prompt = st.text_area("提示词", placeholder="例如：游戏场景、角色设计、道具图标等", height=150)
-    
-    # 选择模型
-    model = st.selectbox(
-        "选择模型",
-        ("百度文心一言", "阿里通义千问", "智谱AI", "讯飞星火", "Claude", "GPT", "DeepSeek", "硅基流动")
-    )
-    
-    col1, col2 = st.columns([1, 4])
-    with col1:
-        generate_btn = st.button("🚀 生成图像", type="primary")
-    
-    if generate_btn:
-        if not prompt:
-            st.error("请输入提示词")
-        else:
-            with st.spinner("生成中..."):
-                try:
-                    # 调用图像生成函数
-                    image_url = generate_image(prompt, model)
-                    st.success("生成成功！")
-                    st.markdown("### 生成结果")
-                    st.image(image_url, use_container_width=True)
-                    
-                    # 提供下载按钮
-                    if image_url.startswith('http'):
-                        response = requests.get(image_url)
-                        if response.status_code == 200:
-                            st.download_button(
-                                label="💾 下载图像",
-                                data=response.content,
-                                file_name=f"generated_image_{model}.png",
-                                mime="image/png"
-                            )
-                except Exception as e:
-                    st.error(f"生成失败：{str(e)}")
+    # 检查API是否配置
+    if not check_api_configured(st.session_state.selected_model):
+        st.warning(f"⚠️ {st.session_state.selected_model} 的API密钥未配置，请在侧边栏选择其他模型或前往「API设置」页面配置")
+    else:
+        # 输入提示词
+        prompt = st.text_area("提示词", placeholder="例如：游戏场景、角色设计、道具图标等", height=150)
+        
+        col1, col2 = st.columns([1, 4])
+        with col1:
+            generate_btn = st.button("🚀 生成图像", type="primary")
+        
+        if generate_btn:
+            if not prompt:
+                st.error("请输入提示词")
+            else:
+                with st.spinner("生成中..."):
+                    try:
+                        # 调用图像生成函数
+                        image_url = generate_image(prompt, st.session_state.selected_model)
+                        st.success("生成成功！")
+                        st.markdown("### 生成结果")
+                        st.image(image_url, use_container_width=True)
+                        
+                        # 提供下载按钮
+                        if image_url.startswith('http'):
+                            response = requests.get(image_url)
+                            if response.status_code == 200:
+                                st.download_button(
+                                    label="💾 下载图像",
+                                    data=response.content,
+                                    file_name=f"generated_image_{st.session_state.selected_model}.png",
+                                    mime="image/png"
+                                )
+                    except Exception as e:
+                        st.error(f"生成失败：{str(e)}")
 
 # ==================== 数据生成功能 ====================
 
@@ -429,79 +510,77 @@ elif option == "数据生成":
     st.header("📊 AI数据生成")
     st.write("输入提示词，生成游戏相关的数据内容，如角色属性表、任务列表、物品数据等。")
     
-    # 输入提示词
-    prompt = st.text_area("提示词", placeholder="例如：生成一个RPG游戏的角色属性表，包含名称、等级、生命值、攻击力等字段", height=150)
-    
-    # 选择数据类型
-    data_type = st.selectbox(
-        "选择数据格式",
-        ("JSON", "XLSX", "XMind")
-    )
-    
-    # 选择模型
-    model = st.selectbox(
-        "选择模型",
-        ("百度文心一言", "阿里通义千问", "智谱AI", "讯飞星火", "Claude", "GPT", "DeepSeek", "硅基流动")
-    )
-    
-    col1, col2 = st.columns([1, 4])
-    with col1:
-        generate_btn = st.button("🚀 生成数据", type="primary")
-    
-    if generate_btn:
-        if not prompt:
-            st.error("请输入提示词")
-        else:
-            with st.spinner("生成中..."):
-                try:
-                    # 调用数据生成函数
-                    data, filename = generate_data(prompt, data_type, model)
-                    
-                    if data is not None:
-                        st.success("生成成功！")
-                        st.markdown("### 生成结果")
+    # 检查API是否配置
+    if not check_api_configured(st.session_state.selected_model):
+        st.warning(f"⚠️ {st.session_state.selected_model} 的API密钥未配置，请在侧边栏选择其他模型或前往「API设置」页面配置")
+    else:
+        # 输入提示词
+        prompt = st.text_area("提示词", placeholder="例如：生成一个RPG游戏的角色属性表，包含名称、等级、生命值、攻击力等字段", height=150)
+        
+        # 选择数据类型
+        data_type = st.selectbox(
+            "选择数据格式",
+            ("JSON", "XLSX", "XMind")
+        )
+        
+        col1, col2 = st.columns([1, 4])
+        with col1:
+            generate_btn = st.button("🚀 生成数据", type="primary")
+        
+        if generate_btn:
+            if not prompt:
+                st.error("请输入提示词")
+            else:
+                with st.spinner("生成中..."):
+                    try:
+                        # 调用数据生成函数
+                        data, filename = generate_data(prompt, data_type, st.session_state.selected_model)
                         
-                        if data_type == "JSON":
-                            # 显示JSON预览
-                            st.json(data)
-                            # 提供下载按钮
-                            json_str = json.dumps(data, ensure_ascii=False, indent=2)
-                            st.download_button(
-                                label="💾 下载JSON文件",
-                                data=json_str,
-                                file_name=filename,
-                                mime="application/json"
-                            )
-                        
-                        elif data_type == "XLSX":
-                            # 显示表格预览
-                            st.dataframe(data)
-                            # 提供下载按钮
-                            buffer = BytesIO()
-                            with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
-                                data.to_excel(writer, index=False, sheet_name='Sheet1')
-                            st.download_button(
-                                label="💾 下载Excel文件",
-                                data=buffer.getvalue(),
-                                file_name=filename,
-                                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                            )
-                        
-                        elif data_type == "XMind":
-                            # 显示思维导图预览（文本形式）
-                            st.text(data)
-                            # 提供下载按钮
-                            st.download_button(
-                                label="💾 下载XMind文件",
-                                data=data,
-                                file_name=filename,
-                                mime="application/xmind"
-                            )
-                    else:
-                        st.error(filename)  # 显示错误信息
-                        
-                except Exception as e:
-                    st.error(f"生成失败：{str(e)}")
+                        if data is not None:
+                            st.success("生成成功！")
+                            st.markdown("### 生成结果")
+                            
+                            if data_type == "JSON":
+                                # 显示JSON预览
+                                st.json(data)
+                                # 提供下载按钮
+                                json_str = json.dumps(data, ensure_ascii=False, indent=2)
+                                st.download_button(
+                                    label="💾 下载JSON文件",
+                                    data=json_str,
+                                    file_name=filename,
+                                    mime="application/json"
+                                )
+                            
+                            elif data_type == "XLSX":
+                                # 显示表格预览
+                                st.dataframe(data)
+                                # 提供下载按钮
+                                buffer = BytesIO()
+                                with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+                                    data.to_excel(writer, index=False, sheet_name='Sheet1')
+                                st.download_button(
+                                    label="💾 下载Excel文件",
+                                    data=buffer.getvalue(),
+                                    file_name=filename,
+                                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                )
+                            
+                            elif data_type == "XMind":
+                                # 显示思维导图预览（文本形式）
+                                st.text(data)
+                                # 提供下载按钮
+                                st.download_button(
+                                    label="💾 下载XMind文件",
+                                    data=data,
+                                    file_name=filename,
+                                    mime="application/xmind"
+                                )
+                        else:
+                            st.error(filename)  # 显示错误信息
+                            
+                    except Exception as e:
+                        st.error(f"生成失败：{str(e)}")
 
 # ==================== API文档页面 ====================
 
