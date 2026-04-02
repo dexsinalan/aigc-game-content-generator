@@ -152,3 +152,17 @@ def generate_data_silicon(data_prompt, data_type):
             
     except Exception as e:
         return None, f"生成失败：{str(e)}"
+
+def translate_text_silicon(prompt):
+    """使用硅基流动翻译文本"""
+    api_key = os.getenv('SILICON_API_KEY')
+    
+    if not api_key:
+        return None, "请配置硅基流动API密钥"
+    
+    try:
+        result = generate_text_silicon(prompt)
+        return result, "翻译成功"
+    except Exception as e:
+        return None, f"翻译失败：{str(e)}"
+

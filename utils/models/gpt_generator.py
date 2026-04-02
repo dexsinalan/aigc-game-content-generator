@@ -151,3 +151,17 @@ def generate_data_gpt(data_prompt, data_type):
             
     except Exception as e:
         return None, f"生成失败：{str(e)}"
+
+def translate_text_gpt(prompt):
+    """使用GPT翻译文本"""
+    api_key = os.getenv('GPT_API_KEY')
+    
+    if not api_key:
+        return None, "请配置GPT API密钥"
+    
+    try:
+        result = generate_text_gpt(prompt)
+        return result, "翻译成功"
+    except Exception as e:
+        return None, f"翻译失败：{str(e)}"
+

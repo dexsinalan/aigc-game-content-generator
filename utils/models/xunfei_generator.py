@@ -297,3 +297,19 @@ def generate_data_xunfei(data_prompt, data_type):
             
     except Exception as e:
         return None, f"生成失败：{str(e)}"
+
+def translate_text_xunfei(prompt):
+    """使用讯飞星火翻译文本"""
+    app_id = os.getenv('XUNFEI_APP_ID')
+    api_key = os.getenv('XUNFEI_API_KEY')
+    api_secret = os.getenv('XUNFEI_API_SECRET')
+    
+    if not app_id or not api_key or not api_secret:
+        return None, "请配置讯飞星火API密钥"
+    
+    try:
+        result = generate_text_xunfei(prompt)
+        return result, "翻译成功"
+    except Exception as e:
+        return None, f"翻译失败：{str(e)}"
+

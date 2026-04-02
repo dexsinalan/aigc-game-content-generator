@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from utils.text_generator import generate_text_for_model
 from utils.image_generator import generate_image_for_model
 from utils.data_generator import generate_json_data, generate_xlsx_data, generate_mindmap_data
+from utils.translation_generator import translate_text_for_model, SUPPORTED_LANGUAGES
 
 # 加载环境变量
 load_dotenv()
@@ -138,6 +139,7 @@ api_settings_btn = st.sidebar.button("🔑 API设置", use_container_width=True,
 text_gen_btn = st.sidebar.button("📝 文本生成", use_container_width=True, key="btn_text_gen")
 image_gen_btn = st.sidebar.button("🖼️ 图像生成", use_container_width=True, key="btn_image_gen")
 data_gen_btn = st.sidebar.button("📊 数据生成", use_container_width=True, key="btn_data_gen")
+translation_btn = st.sidebar.button("🌍 多语言在地化", use_container_width=True, key="btn_translation")
 api_docs_btn = st.sidebar.button("📚 API文档", use_container_width=True, key="btn_api_docs")
 
 # 处理按钮点击
@@ -151,6 +153,8 @@ elif image_gen_btn:
     st.session_state.current_page = "图像生成"
 elif data_gen_btn:
     st.session_state.current_page = "数据生成"
+elif translation_btn:
+    st.session_state.current_page = "多语言在地化"
 elif api_docs_btn:
     st.session_state.current_page = "API文档"
 
@@ -158,7 +162,7 @@ elif api_docs_btn:
 option = st.session_state.current_page
 
 # ==================== 模型选择 ====================
-if option in ["文本生成", "图像生成", "数据生成"]:
+if option in ["文本生成", "图像生成", "数据生成", "多语言在地化"]:
     st.sidebar.divider()
     st.sidebar.subheader("🤖 模型选择")
     
@@ -655,13 +659,195 @@ elif option == "数据生成":
                                         file_name=filename,
                                         mime="application/xmind"
                                     )
-                        
-
                         else:
                             st.error(filename)  # 显示错误信息
                             
                     except Exception as e:
                         st.error(f"生成失败：{str(e)}")
+
+# ==================== 多语言在地化功能 ====================
+
+elif option == "多语言在地化":
+    st.header("🌍 AI多语言在地化")
+    st.write("输入游戏文本，生成多种语言的翻译版本，并导出为游戏引擎通用的格式。")
+    
+    # 检查API是否配置
+    if not check_api_configured(st.session_state.selected_model):
+        st.warning(f"⚠️ {st.session_state.selected_model} 的API密钥未配置，请在侧边栏选择其他模型或前往「API设置」页面配置")
+    else:
+        # 输入文本
+        text = st.text_area("输入要翻译的文本", placeholder="例如：游戏中的对话、物品描述、任务文本等", height=200)
+        
+        # 选择目标语言
+        target_languages = st.multiselect(
+            "选择目标语言",
+            list(SUPPORTED_LANGUAGES.keys()),
+            default=["英文", "日文", "韩文"]
+        )
+        
+        # 初始化会话状态变量
+        if 'translations' not in st.session_state:
+            st.session_state.translations = {}
+        if 'translated_text' not in st.session_state:
+            st.session_state.translated_text = None
+        
+        # 生成按钮和操作按钮区域
+        col1, col2, col3 = st.columns([1, 1, 2])
+        with col1:
+            translate_btn = st.button("🌐 开始翻译", type="primary")
+        
+        # 显示保存的翻译结果和下载按钮
+        if st.session_state.translations:
+            st.success("翻译成功！")
+            st.markdown("### 翻译结果")
+            
+            # 显示翻译结果
+            for lang, translation in st.session_state.translations.items():
+                with st.expander(f"{lang}"):
+                    st.text(translation)
+            
+            # 下载按钮
+            with col2:
+                # 生成CSV格式数据
+                import csv
+                import io
+                
+                # 创建CSV内容
+                csv_output = io.BytesIO()
+                
+                # 写入UTF-8 BOM
+                csv_output.write(b'\xef\xbb\xbf')
+                
+                # 直接使用UTF-8编码写入
+                content = []
+                # 写入表头
+                headers = ['原文'] + target_languages
+                content.append(','.join(['"' + str(h).replace('"', '""') + '"' for h in headers]))
+                
+                # 按行写入数据
+                lines = text.split('\n')
+                for i, line in enumerate(lines):
+                    if line.strip():
+                        row = [line]
+                        for lang in target_languages:
+                            if lang in st.session_state.translations:
+                                # 获取该语言的完整翻译
+                                translation = st.session_state.translations[lang]
+                                # 按换行符分割
+                                trans_lines = translation.split('\n')
+                                # 检查是否有对应行的翻译
+                                if i < len(trans_lines):
+                                    row.append(trans_lines[i].strip())
+                                else:
+                                    # 如果翻译行数不够，使用完整翻译
+                                    row.append(translation.strip())
+                            else:
+                                row.append('')
+                        # 处理逗号和引号，确保CSV格式正确
+                        row_str = ','.join(['"' + str(cell).replace('"', '""') + '"' for cell in row])
+                        content.append(row_str)
+                
+                # 写入CSV内容
+                csv_content = '\n'.join(content).encode('utf-8')
+                csv_output.write(csv_content)
+                csv_output.seek(0)
+                
+                st.download_button(
+                    label="💾 下载翻译结果 (CSV)",
+                    data=csv_output.getvalue(),
+                    file_name="translations.csv",
+                    mime="text/csv",
+                    key="download_csv_saved"
+                )
+        
+        if translate_btn:
+            if not text:
+                st.error("请输入要翻译的文本")
+            elif not target_languages:
+                st.error("请至少选择一种目标语言")
+            else:
+                with st.spinner("翻译中..."):
+                    try:
+                        # 初始化翻译结果字典
+                        translations = {}
+                        
+                        # 翻译到每种目标语言
+                        for lang in target_languages:
+                            result, status = translate_text_for_model(text, lang, st.session_state.selected_model)
+                            if result:
+                                translations[lang] = result
+                            else:
+                                translations[lang] = f"翻译失败：{status}"
+                        
+                        # 保存翻译结果到会话状态
+                        st.session_state.translations = translations
+                        st.session_state.translated_text = text
+                        
+                        # 直接显示结果和下载按钮，不需要刷新页面
+                        st.success("翻译成功！")
+                        st.markdown("### 翻译结果")
+                        
+                        # 显示翻译结果
+                        for lang, translation in translations.items():
+                            with st.expander(f"{lang}"):
+                                st.text(translation)
+                        
+                        # 下载按钮
+                        with col2:
+                            # 生成CSV格式数据
+                            import csv
+                            import io
+                            
+                            # 创建CSV内容
+                            csv_output = io.BytesIO()
+                            
+                            # 写入UTF-8 BOM
+                            csv_output.write(b'\xef\xbb\xbf')
+                            
+                            # 直接使用UTF-8编码写入
+                            content = []
+                            # 写入表头
+                            headers = ['原文'] + target_languages
+                            content.append(','.join(['"' + str(h).replace('"', '""') + '"' for h in headers]))
+                            
+                            # 按行写入数据
+                            lines = text.split('\n')
+                            for i, line in enumerate(lines):
+                                if line.strip():
+                                    row = [line]
+                                    for lang in target_languages:
+                                        if lang in translations:
+                                            # 获取该语言的完整翻译
+                                            translation = translations[lang]
+                                            # 按换行符分割
+                                            trans_lines = translation.split('\n')
+                                            # 检查是否有对应行的翻译
+                                            if i < len(trans_lines):
+                                                row.append(trans_lines[i].strip())
+                                            else:
+                                                # 如果翻译行数不够，使用完整翻译
+                                                row.append(translation.strip())
+                                        else:
+                                            row.append('')
+                                    # 处理逗号和引号，确保CSV格式正确
+                                    row_str = ','.join(['"' + str(cell).replace('"', '""') + '"' for cell in row])
+                                    content.append(row_str)
+                            
+                            # 写入CSV内容
+                            csv_content = '\n'.join(content).encode('utf-8')
+                            csv_output.write(csv_content)
+                            csv_output.seek(0)
+                            
+                            st.download_button(
+                                label="💾 下载翻译结果 (CSV)",
+                                data=csv_output.getvalue(),
+                                file_name="translations.csv",
+                                mime="text/csv",
+                                key="download_csv_new"
+                            )
+                        
+                    except Exception as e:
+                        st.error(f"翻译失败：{str(e)}")
 
 # ==================== API文档页面 ====================
 

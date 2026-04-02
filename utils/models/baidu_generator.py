@@ -144,3 +144,18 @@ def generate_data_baidu(data_prompt, data_type):
             
     except Exception as e:
         return None, f"生成失败：{str(e)}"
+
+def translate_text_baidu(prompt):
+    """使用百度文心一言翻译文本"""
+    api_key = os.getenv('BAIDU_API_KEY')
+    secret_key = os.getenv('BAIDU_SECRET_KEY')
+    
+    if not api_key or not secret_key:
+        return None, "请配置百度文心一言API密钥"
+    
+    try:
+        result = generate_text_baidu(prompt)
+        return result, "翻译成功"
+    except Exception as e:
+        return None, f"翻译失败：{str(e)}"
+
