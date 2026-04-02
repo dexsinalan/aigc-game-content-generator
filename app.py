@@ -75,8 +75,10 @@ def init_session_state():
                 'api_key': os.getenv('ZHIPU_API_KEY', '')
             },
             'xunfei': {
-                'api_key': os.getenv('XUNFEI_API_KEY', '')
-            }
+                        'app_id': os.getenv('XUNFEI_APP_ID', ''),
+                        'api_key': os.getenv('XUNFEI_API_KEY', ''),
+                        'api_secret': os.getenv('XUNFEI_API_SECRET', '')
+                    }
         }
 
 # ==================== 页面配置 ====================
@@ -164,16 +166,30 @@ if option == "API设置":
     
     # 讯飞星火配置
     with st.expander("讯飞星火"):
-        st.info("💡 提示：请使用讯飞星火的 OpenAI 兼容接口 APIPassword")
-        st.write("获取方式：登录讯飞开放平台控制台，在「星火大模型」的设置页面中寻找 HTTP 调用或 OpenAI 兼容接口的说明区块")
-        xunfei_api_key = st.text_input("APIPassword", 
+        st.info("💡 提示：请使用讯飞星火的 HiDream 图像生成 API 配置")
+        st.write("获取方式：登录讯飞开放平台控制台，在「星火大模型」的设置页面中获取")
+        xunfei_app_id = st.text_input("APP ID", 
+                                       value=st.session_state.api_keys['xunfei']['app_id'],
+                                       type="password", 
+                                       placeholder="输入讯飞APP ID",
+                                       key="xunfei_app_id")
+        xunfei_api_key = st.text_input("API Key", 
                                        value=st.session_state.api_keys['xunfei']['api_key'],
                                        type="password", 
-                                       placeholder="输入讯飞APIPassword",
+                                       placeholder="输入讯飞API Key",
                                        key="xunfei_api_key")
+        xunfei_api_secret = st.text_input("API Secret", 
+                                       value=st.session_state.api_keys['xunfei']['api_secret'],
+                                       type="password", 
+                                       placeholder="输入讯飞API Secret",
+                                       key="xunfei_api_secret")
         if st.button("保存讯飞配置"):
+            st.session_state.api_keys['xunfei']['app_id'] = xunfei_app_id
             st.session_state.api_keys['xunfei']['api_key'] = xunfei_api_key
+            st.session_state.api_keys['xunfei']['api_secret'] = xunfei_api_secret
+            os.environ['XUNFEI_APP_ID'] = xunfei_app_id
             os.environ['XUNFEI_API_KEY'] = xunfei_api_key
+            os.environ['XUNFEI_API_SECRET'] = xunfei_api_secret
             st.success("讯飞配置已保存！")
     
     # 付费API
