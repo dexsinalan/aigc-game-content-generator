@@ -192,3 +192,192 @@ def generate_text_xunfei(prompt):
         return f"生成失败：网络错误 - {str(e)}"
     except Exception as e:
         return f"生成失败：{str(e)}"
+
+# Claude文本生成
+def generate_text_claude(prompt):
+    """使用Claude生成文本"""
+    api_key = os.getenv('CLAUDE_API_KEY')
+    
+    if not api_key:
+        return "请配置Claude API密钥"
+    
+    try:
+        url = "https://api.anthropic.com/v1/messages"
+        headers = {
+            'Content-Type': 'application/json',
+            'x-api-key': api_key,
+            'anthropic-version': '2023-06-01'
+        }
+        data = {
+            "model": "claude-3-opus-20240229",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            "temperature": 0.7,
+            "max_tokens": 8000
+        }
+        
+        response = requests.post(url, headers=headers, json=data, timeout=60)
+        
+        if response.status_code != 200:
+            error_details = response.text
+            return f"生成失败：{response.status_code} {response.reason} - {error_details}"
+            
+        result = response.json()
+        
+        if 'content' in result and len(result['content']) > 0:
+            return result['content'][0]['text']
+        else:
+            error_msg = result.get('error', {}).get('message', '未知错误')
+            return f"生成失败：{error_msg}"
+    except requests.exceptions.RequestException as e:
+        return f"生成失败：网络错误 - {str(e)}"
+    except Exception as e:
+        return f"生成失败：{str(e)}"
+
+# GPT文本生成
+def generate_text_gpt(prompt):
+    """使用GPT生成文本"""
+    api_key = os.getenv('GPT_API_KEY')
+    
+    if not api_key:
+        return "请配置GPT API密钥"
+    
+    try:
+        url = "https://api.openai.com/v1/chat/completions"
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {api_key}'
+        }
+        data = {
+            "model": "gpt-4",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            "temperature": 0.7,
+            "max_tokens": 8000
+        }
+        
+        response = requests.post(url, headers=headers, json=data, timeout=60)
+        
+        if response.status_code != 200:
+            error_details = response.text
+            return f"生成失败：{response.status_code} {response.reason} - {error_details}"
+            
+        result = response.json()
+        
+        if 'choices' in result and len(result['choices']) > 0:
+            choice = result['choices'][0]
+            if 'message' in choice and 'content' in choice['message']:
+                return choice['message']['content']
+            else:
+                return f"生成失败：响应格式错误 - {str(result)}"
+        else:
+            error_msg = result.get('error', {}).get('message', '未知错误')
+            return f"生成失败：{error_msg}"
+    except requests.exceptions.RequestException as e:
+        return f"生成失败：网络错误 - {str(e)}"
+    except Exception as e:
+        return f"生成失败：{str(e)}"
+
+# DeepSeek文本生成
+def generate_text_deepseek(prompt):
+    """使用DeepSeek生成文本"""
+    api_key = os.getenv('DEEPSEEK_API_KEY')
+    
+    if not api_key:
+        return "请配置DeepSeek API密钥"
+    
+    try:
+        url = "https://api.deepseek.com/v1/chat/completions"
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {api_key}'
+        }
+        data = {
+            "model": "deepseek-chat",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            "temperature": 0.7,
+            "max_tokens": 8000
+        }
+        
+        response = requests.post(url, headers=headers, json=data, timeout=60)
+        
+        if response.status_code != 200:
+            error_details = response.text
+            return f"生成失败：{response.status_code} {response.reason} - {error_details}"
+            
+        result = response.json()
+        
+        if 'choices' in result and len(result['choices']) > 0:
+            choice = result['choices'][0]
+            if 'message' in choice and 'content' in choice['message']:
+                return choice['message']['content']
+            else:
+                return f"生成失败：响应格式错误 - {str(result)}"
+        else:
+            error_msg = result.get('error', {}).get('message', '未知错误')
+            return f"生成失败：{error_msg}"
+    except requests.exceptions.RequestException as e:
+        return f"生成失败：网络错误 - {str(e)}"
+    except Exception as e:
+        return f"生成失败：{str(e)}"
+
+# 硅基流动文本生成
+def generate_text_silicon(prompt):
+    """使用硅基流动生成文本"""
+    api_key = os.getenv('SILICON_API_KEY')
+    
+    if not api_key:
+        return "请配置硅基流动API密钥"
+    
+    try:
+        url = "https://api.siliconflow.cn/v1/chat/completions"
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {api_key}'
+        }
+        data = {
+            "model": "gpt-4",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            "temperature": 0.7,
+            "max_tokens": 8000
+        }
+        
+        response = requests.post(url, headers=headers, json=data, timeout=60)
+        
+        if response.status_code != 200:
+            error_details = response.text
+            return f"生成失败：{response.status_code} {response.reason} - {error_details}"
+            
+        result = response.json()
+        
+        if 'choices' in result and len(result['choices']) > 0:
+            choice = result['choices'][0]
+            if 'message' in choice and 'content' in choice['message']:
+                return choice['message']['content']
+            else:
+                return f"生成失败：响应格式错误 - {str(result)}"
+        else:
+            error_msg = result.get('error', {}).get('message', '未知错误')
+            return f"生成失败：{error_msg}"
+    except requests.exceptions.RequestException as e:
+        return f"生成失败：网络错误 - {str(e)}"
+    except Exception as e:
+        return f"生成失败：{str(e)}"

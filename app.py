@@ -17,7 +17,7 @@ load_dotenv()
 
 # 文本生成函数
 def generate_text(prompt, model):
-    """使用国产大模型生成文本"""
+    """使用大模型生成文本"""
     if model == "百度文心一言":
         return generate_text_baidu(prompt)
     elif model == "阿里通义千问":
@@ -26,12 +26,20 @@ def generate_text(prompt, model):
         return generate_text_zhipu(prompt)
     elif model == "讯飞星火":
         return generate_text_xunfei(prompt)
+    elif model == "Claude":
+        return generate_text_claude(prompt)
+    elif model == "GPT":
+        return generate_text_gpt(prompt)
+    elif model == "DeepSeek":
+        return generate_text_deepseek(prompt)
+    elif model == "硅基流动":
+        return generate_text_silicon(prompt)
     else:
         return "不支持的模型"
 
 # 图像生成函数
 def generate_image(prompt, model):
-    """使用国产大模型生成图像"""
+    """使用大模型生成图像"""
     if model == "百度文心一言":
         return generate_image_baidu(prompt)
     elif model == "阿里通义千问":
@@ -40,12 +48,20 @@ def generate_image(prompt, model):
         return generate_image_zhipu(prompt)
     elif model == "讯飞星火":
         return generate_image_xunfei(prompt)
+    elif model == "Claude":
+        return generate_image_claude(prompt)
+    elif model == "GPT":
+        return generate_image_gpt(prompt)
+    elif model == "DeepSeek":
+        return generate_image_deepseek(prompt)
+    elif model == "硅基流动":
+        return generate_image_silicon(prompt)
     else:
         return "不支持的模型"
 
 # 数据生成函数
 def generate_data(prompt, data_type, model):
-    """使用国产大模型生成数据"""
+    """使用大模型生成数据"""
     if data_type == "JSON":
         return generate_json_data(prompt, model)
     elif data_type == "XLSX":
@@ -205,6 +221,29 @@ if option == "API设置":
             os.environ['ZHIPU_API_KEY'] = zhipu_api_key
             st.success("智谱配置已保存！")
     
+    # 付费API
+    st.subheader("💲 付费API")
+    st.write("以下是需要付费的API，功能更强大：")
+    
+    # 百度文心一言配置
+    with st.expander("百度文心一言"):
+        baidu_api_key = st.text_input("API Key", 
+                                      value=st.session_state.api_keys['baidu']['api_key'],
+                                      type="password", 
+                                      placeholder="输入百度API Key",
+                                      key="baidu_api_key")
+        baidu_secret_key = st.text_input("Secret Key", 
+                                         value=st.session_state.api_keys['baidu']['secret_key'],
+                                         type="password", 
+                                         placeholder="输入百度Secret Key",
+                                         key="baidu_secret_key")
+        if st.button("保存百度配置"):
+            st.session_state.api_keys['baidu']['api_key'] = baidu_api_key
+            st.session_state.api_keys['baidu']['secret_key'] = baidu_secret_key
+            os.environ['BAIDU_API_KEY'] = baidu_api_key
+            os.environ['BAIDU_SECRET_KEY'] = baidu_secret_key
+            st.success("百度配置已保存！")
+    
     # 讯飞星火配置
     with st.expander("讯飞星火"):
         st.info("💡 提示：请使用讯飞星火的 HiDream 图像生成 API 配置")
@@ -233,28 +272,69 @@ if option == "API设置":
             os.environ['XUNFEI_API_SECRET'] = xunfei_api_secret
             st.success("讯飞配置已保存！")
     
-    # 付费API
-    st.subheader("💲 付费API")
-    st.write("以下是需要付费的API，功能更强大：")
-    
-    # 百度文心一言配置
-    with st.expander("百度文心一言"):
-        baidu_api_key = st.text_input("API Key", 
-                                      value=st.session_state.api_keys['baidu']['api_key'],
+    # Claude配置
+    with st.expander("Claude"):
+        st.info("💡 提示：请使用Anthropic的Claude API")
+        st.write("获取方式：登录Anthropic控制台，创建API密钥")
+        claude_api_key = st.text_input("API Key", 
+                                      value=st.session_state.api_keys.get('claude', {}).get('api_key', ''),
                                       type="password", 
-                                      placeholder="输入百度API Key",
-                                      key="baidu_api_key")
-        baidu_secret_key = st.text_input("Secret Key", 
-                                         value=st.session_state.api_keys['baidu']['secret_key'],
+                                      placeholder="输入Claude API Key",
+                                      key="claude_api_key")
+        if st.button("保存Claude配置"):
+            if 'claude' not in st.session_state.api_keys:
+                st.session_state.api_keys['claude'] = {}
+            st.session_state.api_keys['claude']['api_key'] = claude_api_key
+            os.environ['CLAUDE_API_KEY'] = claude_api_key
+            st.success("Claude配置已保存！")
+    
+    # GPT配置
+    with st.expander("GPT"):
+        st.info("� 提示：请使用OpenAI的GPT API")
+        st.write("获取方式：登录OpenAI控制台，创建API密钥")
+        gpt_api_key = st.text_input("API Key", 
+                                    value=st.session_state.api_keys.get('gpt', {}).get('api_key', ''),
+                                    type="password", 
+                                    placeholder="输入GPT API Key",
+                                    key="gpt_api_key")
+        if st.button("保存GPT配置"):
+            if 'gpt' not in st.session_state.api_keys:
+                st.session_state.api_keys['gpt'] = {}
+            st.session_state.api_keys['gpt']['api_key'] = gpt_api_key
+            os.environ['GPT_API_KEY'] = gpt_api_key
+            st.success("GPT配置已保存！")
+    
+    # DeepSeek配置
+    with st.expander("DeepSeek"):
+        st.info("💡 提示：请使用DeepSeek的API")
+        st.write("获取方式：登录DeepSeek控制台，创建API密钥")
+        deepseek_api_key = st.text_input("API Key", 
+                                         value=st.session_state.api_keys.get('deepseek', {}).get('api_key', ''),
                                          type="password", 
-                                         placeholder="输入百度Secret Key",
-                                         key="baidu_secret_key")
-        if st.button("保存百度配置"):
-            st.session_state.api_keys['baidu']['api_key'] = baidu_api_key
-            st.session_state.api_keys['baidu']['secret_key'] = baidu_secret_key
-            os.environ['BAIDU_API_KEY'] = baidu_api_key
-            os.environ['BAIDU_SECRET_KEY'] = baidu_secret_key
-            st.success("百度配置已保存！")
+                                         placeholder="输入DeepSeek API Key",
+                                         key="deepseek_api_key")
+        if st.button("保存DeepSeek配置"):
+            if 'deepseek' not in st.session_state.api_keys:
+                st.session_state.api_keys['deepseek'] = {}
+            st.session_state.api_keys['deepseek']['api_key'] = deepseek_api_key
+            os.environ['DEEPSEEK_API_KEY'] = deepseek_api_key
+            st.success("DeepSeek配置已保存！")
+    
+    # 硅基流动配置
+    with st.expander("硅基流动"):
+        st.info("💡 提示：请使用硅基流动的API")
+        st.write("获取方式：登录硅基流动控制台，创建API密钥")
+        silicon_api_key = st.text_input("API Key", 
+                                        value=st.session_state.api_keys.get('silicon', {}).get('api_key', ''),
+                                        type="password", 
+                                        placeholder="输入硅基流动API Key",
+                                        key="silicon_api_key")
+        if st.button("保存硅基流动配置"):
+            if 'silicon' not in st.session_state.api_keys:
+                st.session_state.api_keys['silicon'] = {}
+            st.session_state.api_keys['silicon']['api_key'] = silicon_api_key
+            os.environ['SILICON_API_KEY'] = silicon_api_key
+            st.success("硅基流动配置已保存！")
     
     # 一键保存所有配置
     st.divider()
@@ -275,7 +355,7 @@ elif option == "文本生成":
     # 选择模型
     model = st.selectbox(
         "选择模型",
-        ("百度文心一言", "阿里通义千问", "智谱AI", "讯飞星火")
+        ("百度文心一言", "阿里通义千问", "智谱AI", "讯飞星火", "Claude", "GPT", "DeepSeek", "硅基流动")
     )
     
     col1, col2 = st.columns([1, 4])
@@ -311,7 +391,7 @@ elif option == "图像生成":
     # 选择模型
     model = st.selectbox(
         "选择模型",
-        ("百度文心一言", "阿里通义千问", "智谱AI", "讯飞星火")
+        ("百度文心一言", "阿里通义千问", "智谱AI", "讯飞星火", "Claude", "GPT", "DeepSeek", "硅基流动")
     )
     
     col1, col2 = st.columns([1, 4])
@@ -361,7 +441,7 @@ elif option == "数据生成":
     # 选择模型
     model = st.selectbox(
         "选择模型",
-        ("百度文心一言", "阿里通义千问", "智谱AI", "讯飞星火")
+        ("百度文心一言", "阿里通义千问", "智谱AI", "讯飞星火", "Claude", "GPT", "DeepSeek", "硅基流动")
     )
     
     col1, col2 = st.columns([1, 4])
