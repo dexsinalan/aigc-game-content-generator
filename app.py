@@ -96,26 +96,7 @@ init_session_state()
 # 页面标题
 st.title("🎮 AI内容生成器 - 游戏开发工具")
 
-# 应用介绍
-with st.expander("📖 应用介绍"):
-    st.write("""
-    这是一个专为游戏开发设计的AI内容生成工具，使用国产免费大模型提供文本、图像和数据生成服务。
-    
-    **功能特点：**
-    - 📝 文本生成：生成游戏角色描述、剧情对话、任务文本等
-    - 🖼️ 图像生成：生成游戏场景、角色设计、道具图标等
-    - � 数据生成：生成JSON数据表、Excel表格、XMind思维导图等
-    - � 多模型支持：集成百度文心一言、阿里通义千问、智谱AI、讯飞星火等国产大模型
-    - 📚 API文档：提供完整的API接口文档，方便游戏开发直接调用
-    
-    **使用说明：**
-    1. 先在"API设置"页面配置API密钥
-    2. 选择功能模块（文本生成、图像生成、数据生成）
-    3. 输入提示词
-    4. 选择要使用的AI模型
-    5. 点击生成按钮
-    6. 查看生成结果并下载
-    """)
+
 
 # ==================== 侧边栏导航 ====================
 
@@ -123,9 +104,10 @@ st.sidebar.title("功能选择")
 
 # 初始化current_page
 if 'current_page' not in st.session_state:
-    st.session_state.current_page = "API设置"
+    st.session_state.current_page = "介绍文档"
 
-# 显示所有按钮
+# 显示所有按钮（调整顺序，将介绍文档放在第一位）
+intro_btn = st.sidebar.button("📖 介绍文档", use_container_width=True, key="btn_intro")
 api_settings_btn = st.sidebar.button("🔑 API设置", use_container_width=True, key="btn_api_settings")
 text_gen_btn = st.sidebar.button("📝 文本生成", use_container_width=True, key="btn_text_gen")
 image_gen_btn = st.sidebar.button("🖼️ 图像生成", use_container_width=True, key="btn_image_gen")
@@ -133,7 +115,9 @@ data_gen_btn = st.sidebar.button("📊 数据生成", use_container_width=True, 
 api_docs_btn = st.sidebar.button("📚 API文档", use_container_width=True, key="btn_api_docs")
 
 # 处理按钮点击
-if api_settings_btn:
+if intro_btn:
+    st.session_state.current_page = "介绍文档"
+elif api_settings_btn:
     st.session_state.current_page = "API设置"
 elif text_gen_btn:
     st.session_state.current_page = "文本生成"
@@ -146,6 +130,40 @@ elif api_docs_btn:
 
 # 设置当前选项
 option = st.session_state.current_page
+
+# ==================== 介绍文档页面 ====================
+
+if option == "介绍文档":
+    st.header("📖 应用介绍")
+    st.write("""
+    这是一个专为游戏开发设计的AI内容生成工具，使用国产免费大模型提供文本、图像和数据生成服务。
+    
+    **功能特点：**
+    - 📝 文本生成：生成游戏角色描述、剧情对话、任务文本等
+    - 🖼️ 图像生成：生成游戏场景、角色设计、道具图标等
+    - 📊 数据生成：生成JSON数据表、Excel表格、XMind思维导图等
+    - 🌐 多模型支持：集成百度文心一言、阿里通义千问、智谱AI、讯飞星火等国产大模型
+    - 📚 API文档：提供完整的API接口文档，方便游戏开发直接调用
+    
+    **使用说明：**
+    1. 先在"API设置"页面配置API密钥
+    2. 选择功能模块（文本生成、图像生成、数据生成）
+    3. 输入提示词
+    4. 选择要使用的AI模型
+    5. 点击生成按钮
+    6. 查看生成结果并下载
+    
+    **支持的AI模型：**
+    - 百度文心一言
+    - 阿里通义千问
+    - 智谱AI
+    - 讯飞星火
+    
+    **技术栈：**
+    - 前端：Streamlit
+    - 后端：Python
+    - AI模型：国产大模型API
+    """)
 
 # ==================== API设置页面 ====================
 
