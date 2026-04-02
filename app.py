@@ -77,7 +77,7 @@ def init_session_state():
     if 'api_configured' not in st.session_state:
         st.session_state.api_configured = False
     if 'current_page' not in st.session_state:
-        st.session_state.current_page = "文本生成"
+        st.session_state.current_page = "介绍文档"
     if 'api_keys' not in st.session_state:
         st.session_state.api_keys = {
             'baidu': {
