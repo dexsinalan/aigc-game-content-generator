@@ -485,9 +485,11 @@ elif option == "文本生成":
         prompt = st.text_area("提示词", value=st.session_state.get('text_prompt', ''), placeholder="例如：游戏角色描述、剧情对话、任务文本等", height=150)
         st.session_state.text_prompt = prompt
         
-        col1, col2 = st.columns([1, 4])
+        col1, col2 = st.columns([1, 1])
         with col1:
             generate_btn = st.button("🚀 生成文本", type="primary")
+        with col2:
+            save_text_btn = st.button("💾 保存文本", type="primary")
         
         # 显示保存的生成结果
         if 'generated_text' in st.session_state and st.session_state.generated_text:
@@ -495,14 +497,15 @@ elif option == "文本生成":
             st.markdown("### 生成结果")
             st.write(st.session_state.generated_text)
             st.code(st.session_state.generated_text, language="text")
-            
-            # 保存按钮
-            st.download_button(
-                label="💾 保存文本",
-                data=st.session_state.generated_text,
-                file_name=f"generated_text_{st.session_state.selected_model}.txt",
-                mime="text/plain"
-            )
+        
+        if save_text_btn:
+            if 'generated_text' in st.session_state and st.session_state.generated_text:
+                st.download_button(
+                    label="💾 保存文本",
+                    data=st.session_state.generated_text,
+                    file_name=f"generated_text_{st.session_state.selected_model}.txt",
+                    mime="text/plain"
+                )
         
         if generate_btn:
             if not prompt:
@@ -571,26 +574,30 @@ elif option == "图像生成":
         prompt = st.text_area("提示词", value=st.session_state.get('image_prompt', ''), placeholder="例如：游戏场景、角色设计、道具图标等", height=150)
         st.session_state.image_prompt = prompt
         
-        col1, col2 = st.columns([1, 4])
+        col1, col2 = st.columns([1, 1])
         with col1:
             generate_btn = st.button("🚀 生成图像", type="primary")
+        with col2:
+            save_image_btn = st.button("💾 保存图像", type="primary")
         
         # 显示保存的生成结果
         if 'generated_image' in st.session_state and st.session_state.generated_image:
             st.success("生成成功！")
             st.markdown("### 生成结果")
             st.image(st.session_state.generated_image, use_container_width=True)
-            
-            # 提供下载按钮
-            if st.session_state.generated_image.startswith('http'):
-                response = requests.get(st.session_state.generated_image)
-                if response.status_code == 200:
-                    st.download_button(
-                        label="💾 保存图像",
-                        data=response.content,
-                        file_name=f"generated_image_{st.session_state.selected_model}.png",
-                        mime="image/png"
-                    )
+        
+        if save_image_btn:
+            if 'generated_image' in st.session_state and st.session_state.generated_image:
+                # 提供下载按钮
+                if st.session_state.generated_image.startswith('http'):
+                    response = requests.get(st.session_state.generated_image)
+                    if response.status_code == 200:
+                        st.download_button(
+                            label="💾 保存图像",
+                            data=response.content,
+                            file_name=f"generated_image_{st.session_state.selected_model}.png",
+                            mime="image/png"
+                        )
         
         if generate_btn:
             if not prompt:
@@ -963,6 +970,7 @@ st.markdown("""
     cursor: pointer;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
+    text-decoration: none;
 }
 
 .back-to-top:hover {
@@ -976,16 +984,7 @@ st.markdown("""
 }
 </style>
 
-<script>
-function scrollToTop() {
-    window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-    });
-}
-</script>
-
-<div class="back-to-top" onclick="scrollToTop()"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" /></svg></div>
+<a href="#" class="back-to-top"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" /></svg></a>
 """, unsafe_allow_html=True)
 
 
