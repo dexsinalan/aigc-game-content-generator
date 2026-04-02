@@ -141,9 +141,9 @@ def generate_text_xunfei(prompt):
         signature_origin = f"host: {host}\n"
         signature_origin += f"date: {timestamp}\n"
         signature_origin += f"POST {request_uri} HTTP/1.1\n"
-        signature_origin += f"content-type:application/json\n"
-        signature_origin += f"app_id:{app_id}\n"
-        signature_origin += f"sign_type:SIGN_TYPE_HMAC_SHA256"
+        signature_origin += f"content-type: application/json\n"
+        signature_origin += f"app_id: {app_id}\n"
+        signature_origin += f"sign_type: SIGN_TYPE_HMAC_SHA256"
         
         # 生成签名
         signature_sha = hmac.new(api_secret.encode('utf-8'), signature_origin.encode('utf-8'), hashlib.sha256).digest()
