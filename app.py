@@ -7,8 +7,8 @@ import base64
 import time
 from io import BytesIO
 from dotenv import load_dotenv
-from utils.text_generator import generate_text_baidu, generate_text_ali, generate_text_zhipu, generate_text_xunfei, generate_text_claude, generate_text_gpt, generate_text_deepseek, generate_text_silicon
-from utils.image_generator import generate_image_baidu, generate_image_ali, generate_image_zhipu, generate_image_xunfei, generate_image_claude, generate_image_gpt, generate_image_deepseek, generate_image_silicon
+from utils.text_generator import generate_text_for_model
+from utils.image_generator import generate_image_for_model
 from utils.data_generator import generate_json_data, generate_xlsx_data, generate_mindmap_data
 
 # 加载环境变量
@@ -19,46 +19,12 @@ load_dotenv()
 # 文本生成函数
 def generate_text(prompt, model):
     """使用大模型生成文本"""
-    if model == "百度文心一言":
-        return generate_text_baidu(prompt)
-    elif model == "阿里通义千问":
-        return generate_text_ali(prompt)
-    elif model == "智谱AI":
-        return generate_text_zhipu(prompt)
-    elif model == "讯飞星火":
-        return generate_text_xunfei(prompt)
-    elif model == "Claude":
-        return generate_text_claude(prompt)
-    elif model == "GPT":
-        return generate_text_gpt(prompt)
-    elif model == "DeepSeek":
-        return generate_text_deepseek(prompt)
-    elif model == "硅基流动":
-        return generate_text_silicon(prompt)
-    else:
-        return "不支持的模型"
+    return generate_text_for_model(prompt, model)
 
 # 图像生成函数
 def generate_image(prompt, model):
     """使用大模型生成图像"""
-    if model == "百度文心一言":
-        return generate_image_baidu(prompt)
-    elif model == "阿里通义千问":
-        return generate_image_ali(prompt)
-    elif model == "智谱AI":
-        return generate_image_zhipu(prompt)
-    elif model == "讯飞星火":
-        return generate_image_xunfei(prompt)
-    elif model == "Claude":
-        return generate_image_claude(prompt)
-    elif model == "GPT":
-        return generate_image_gpt(prompt)
-    elif model == "DeepSeek":
-        return generate_image_deepseek(prompt)
-    elif model == "硅基流动":
-        return generate_image_silicon(prompt)
-    else:
-        return "不支持的模型"
+    return generate_image_for_model(prompt, model)
 
 # 数据生成函数
 def generate_data(prompt, data_type, model):
