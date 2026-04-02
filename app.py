@@ -142,7 +142,7 @@ text_gen_btn = st.sidebar.button("📝 游戏文本设计", use_container_width=
 image_gen_btn = st.sidebar.button("🖼️ 游戏美术资源", use_container_width=True, key="btn_image_gen")
 data_gen_btn = st.sidebar.button("📊 游戏数据配置", use_container_width=True, key="btn_data_gen")
 translation_btn = st.sidebar.button("🌍 游戏多语言本地化", use_container_width=True, key="btn_translation")
-thanks_btn = st.sidebar.button("🙏 致谢及免责声明明", use_container_width=True, key="btn_thanks")
+thanks_btn = st.sidebar.button("🙏 致谢及免责声明", use_container_width=True, key="btn_thanks")
 
 
 # 处理按钮点击
