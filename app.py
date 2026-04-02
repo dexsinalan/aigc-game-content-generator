@@ -4,11 +4,12 @@ import json
 import os
 import pandas as pd
 import base64
+import time
 from io import BytesIO
 from dotenv import load_dotenv
 from utils.text_generator import generate_text_baidu, generate_text_ali, generate_text_zhipu, generate_text_xunfei, generate_text_claude, generate_text_gpt, generate_text_deepseek, generate_text_silicon
 from utils.image_generator import generate_image_baidu, generate_image_ali, generate_image_zhipu, generate_image_xunfei, generate_image_claude, generate_image_gpt, generate_image_deepseek, generate_image_silicon
-from utils.data_generator import generate_json_data, generate_xlsx_data, generate_xmind_data
+from utils.data_generator import generate_json_data, generate_xlsx_data, generate_mindmap_data
 
 # 加载环境变量
 load_dotenv()
