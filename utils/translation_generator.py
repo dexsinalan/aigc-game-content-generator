@@ -1,13 +1,13 @@
 # 翻译生成器
 
-from models.ali_generator import translate_text_ali
-from models.baidu_generator import translate_text_baidu
-from models.zhipu_generator import translate_text_zhipu
-from models.xunfei_generator import translate_text_xunfei
-from models.claude_generator import translate_text_claude
-from models.gpt_generator import translate_text_gpt
-from models.deepseek_generator import translate_text_deepseek
-from models.silicon_generator import translate_text_silicon
+from .models.ali_generator import translate_text_ali
+from .models.baidu_generator import translate_text_baidu
+from .models.zhipu_generator import translate_text_zhipu
+from .models.xunfei_generator import translate_text_xunfei
+from .models.claude_generator import translate_text_claude
+from .models.gpt_generator import translate_text_gpt
+from .models.deepseek_generator import translate_text_deepseek
+from .models.silicon_generator import translate_text_silicon
 
 # 支持的语言列表
 SUPPORTED_LANGUAGES = {
