@@ -24,63 +24,9 @@
 - 💲 **DeepSeek**：DeepSeek大模型
 - 💲 **硅基流动**：硅基流动大模型
 
-## 快速开始
+## 在线访问
 
-### 本地运行
-
-1. **安装依赖**
-```bash
-pip install -r requirements.txt
-```
-
-2. **配置API密钥**
-创建`.env`文件，填入您的API密钥：
-```
-# 阿里通义千问
-ALI_API_KEY=你的阿里API密钥
-
-# 智谱AI
-ZHIPU_API_KEY=你的智谱API密钥
-
-# 百度文心一言
-BAIDU_API_KEY=你的百度API密钥
-BAIDU_SECRET_KEY=你的百度Secret密钥
-
-# 讯飞星火
-XUNFEI_APP_ID=你的讯飞APP ID
-XUNFEI_API_KEY=你的讯飞API Key
-XUNFEI_API_SECRET=你的讯飞API Secret
-
-# Claude
-CLAUDE_API_KEY=你的Claude API密钥
-
-# GPT
-GPT_API_KEY=你的GPT API密钥
-
-# DeepSeek
-DEEPSEEK_API_KEY=你的DeepSeek API密钥
-
-# 硅基流动
-SILICON_API_KEY=你的硅基流动API密钥
-```
-
-3. **运行应用**
-```bash
-streamlit run app.py
-```
-
-4. **访问应用**
-打开浏览器访问：`http://localhost:8502`
-
-## 在线部署
-
-详细的部署步骤请参考 [DEPLOYMENT.md](DEPLOYMENT.md)
-
-### Streamlit Cloud（推荐）
-- 免费托管
-- 自动部署
-- 无需服务器管理
-- 在线访问地址：[aigcsysu.streamlit.app](https://aigcsysu.streamlit.app)
+直接访问：[aigcsysu.streamlit.app](https://aigcsysu.streamlit.app)
 
 ## 使用说明
 
@@ -162,7 +108,7 @@ AIGC/
 ## 注意事项
 
 1. **API密钥安全**：
-   - 不要将`.env`文件提交到版本控制
+   - 不要将API密钥提交到版本控制
    - 使用环境变量管理敏感信息
    - 定期更换API密钥
 
@@ -193,10 +139,6 @@ A: 可以，在对应的工具文件中添加新的生成函数即可。
 ## 许可证
 
 MIT License
-
-## 贡献
-
-欢迎提交Issue和Pull Request！
 
 ## 联系方式
 

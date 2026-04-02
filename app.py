@@ -255,10 +255,14 @@ if option == "介绍文档":
     6. 查看生成结果并下载
     
     **支持的AI模型：**
+    - 阿里通义千问（免费）
+    - 智谱AI（免费）
     - 百度文心一言
-    - 阿里通义千问
-    - 智谱AI
     - 讯飞星火
+    - Claude
+    - GPT
+    - DeepSeek
+    - 硅基流动
     
     **技术栈：**
     - 前端：Streamlit
@@ -270,13 +274,17 @@ if option == "介绍文档":
 
 if option == "API设置":
     st.header("🔑 API密钥设置")
-    st.write("请配置您要使用的国产大模型API密钥。这些密钥将保存在当前会话中。")
+    st.write("请配置您要使用的AI模型API密钥。这些密钥将保存在当前会话中。")
     
     st.info("💡 提示：您可以从以下平台获取API密钥：\n"
-            "- 百度文心一言：https://ai.baidu.com/\n"
-            "- 阿里通义千问：https://tongyi.aliyun.com/\n"
+            "- 阿里通义千问：https://dashscope.aliyun.com/\n"
             "- 智谱AI：https://open.bigmodel.cn/\n"
-            "- 讯飞星火：https://xinghuo.xfyun.cn/")
+            "- 百度文心一言：https://ai.baidu.com/\n"
+            "- 讯飞星火：https://xinghuo.xfyun.cn/\n"
+            "- Claude：https://console.anthropic.com/\n"
+            "- GPT：https://platform.openai.com/\n"
+            "- DeepSeek：https://platform.deepseek.com/\n"
+            "- 硅基流动：https://cloud.siliconflow.cn/")
     
     # 免费API (国产大模型)
     st.subheader("🆓 免费API")
