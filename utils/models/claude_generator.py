@@ -92,9 +92,9 @@ def generate_image_claude(prompt):
         return f"生成失败：{str(e)}"
 
 # Claude数据生成
-def generate_data_claude(prompt, data_type):
+def generate_data_claude(data_prompt, data_type):
     """使用Claude生成数据"""
-    api_key = os.getenv('CLAUDE_API_KEY')
+    api_key = os.getenv('ANTHROPIC_API_KEY')
     
     if not api_key:
         return None, "请配置Claude API密钥"
@@ -104,57 +104,8 @@ def generate_data_claude(prompt, data_type):
         import pandas as pd
         from io import BytesIO
         
-        # 根据数据类型构建提示词
-        if data_type == "JSON":
-            data_prompt = f"""请根据以下描述生成JSON格式的数据：
-{prompt}
-
-要求：
-1. 只返回JSON数据，不要包含任何解释文字
-2. 确保JSON格式正确，可以被Python的json.loads()解析
-3. 数据应该包含合理的字段和示例数据
-4. 如果是表格数据，使用数组格式，数据量根据用戶要求而定
-
-
-请直接返回JSON数据："""
-        elif data_type == "XLSX":
-            data_prompt = f"""请根据以下描述生成表格数据，并返回JSON数组格式：
-{prompt}
-
-要求：
-1. 返回JSON数组格式，每个元素是一个对象，代表一行数据
-2. 确保所有对象具有相同的字段
-3. 只返回JSON数组，不要包含任何解释文字
-4. 数据量根据用戶要求而定
-
-
-请直接返回JSON数组："""
-        elif data_type == "mindmap":
-            data_prompt = f"""请根据以下描述生成思维导图数据，使用Markdown列表格式：
-{prompt}
-
-要求：
-1. 使用Markdown列表格式（- 和缩进）
-2. 第一行是中心主题
-3. 使用缩进表示层级关系
-4. 包含多个主要分支，每个分支可以有多个子节点
-5. 只返回思维导图内容，不要包含任何解释文字
-
-示例格式：
-游戏设计
-- 角色系统
-  - 战士
-  - 法师
-  - 弓箭手
-- 战斗系统
-  - 回合制
-  - 实时战斗
-- 任务系统
-  - 主线任务
-  - 支线任务
-
-请直接返回思维导图内容："""
-        else:
+        # 验证数据类型
+        if data_type not in ["JSON", "XLSX", "mindmap"]:
             return None, "不支持的数据类型"
         
         # 调用文本生成
