@@ -134,7 +134,7 @@ def generate_text_xunfei(prompt):
         import base64
         
         timestamp = str(int(time.time()))
-        host = "spark-api.cn-huabei-1.xf-yun.com"
+        host = "spark-api.xf-yun.com"
         request_uri = "/v3.1/chat"
         
         # 拼接待签名字符串
