@@ -101,91 +101,36 @@ def generate_image_zhipu(prompt):
 # 讯飞星火图像生成
 def generate_image_xunfei(prompt):
     """使用讯飞星火生成图像"""
-    app_id = os.getenv('XUNFEI_APP_ID')
     api_key = os.getenv('XUNFEI_API_KEY')
-    api_secret = os.getenv('XUNFEI_API_SECRET')
     
-    if not app_id or not api_key or not api_secret:
+    if not api_key:
         return "请配置讯飞星火API密钥"
     
     try:
-        # 计算签名
-        import time
-        import hmac
-        import hashlib
-        import base64
-        
-        timestamp = str(int(time.time()))
-        host = "spark-api.cn-huabei-1.xf-yun.com"
-        request_uri = "/v2.1/tti"
-        
-        # 拼接待签名字符串（注意顺序和格式）
-        signature_origin = f"host: {host}\n"
-        signature_origin += f"date: {timestamp}\n"
-        signature_origin += f"POST {request_uri} HTTP/1.1\n"
-        signature_origin += f"content-type:application/json\n"
-        signature_origin += f"app_id:{app_id}\n"
-        signature_origin += f"sign_type:SIGN_TYPE_HMAC_SHA256"
-        
-        # 生成签名
-        signature_sha = hmac.new(api_secret.encode('utf-8'), signature_origin.encode('utf-8'), hashlib.sha256).digest()
-        signature = base64.b64encode(signature_sha).decode('utf-8')
-        
-        # 构建请求头
+        # 使用新的OpenAI兼容接口
+        url = "https://spark-api-open.xf-yun.com/v1/images/generations"
         headers = {
             'Content-Type': 'application/json',
-            'Authorization': f'api_key="{api_key}", algorithm="hmac-sha256", headers="host date request-line content-type app_id sign_type", signature="{signature}"',
-            'Host': host,
-            'Date': timestamp,
-            'app_id': app_id
+            'Authorization': f'Bearer {api_key}'
         }
-        
-        # 构建请求数据
         data = {
-            "header": {
-                "app_id": app_id,
-                "uid": "user123"
-            },
-            "parameter": {
-                "chat": {
-                    "width": 1024,
-                    "height": 1024
-                }
-            },
-            "payload": {
-                "message": {
-                    "text": [
-                        {
-                            "role": "user",
-                            "content": prompt
-                        }
-                    ]
-                }
-            }
+            "model": "max",  # 使用max模型，可根据需要调整
+            "prompt": prompt,
+            "n": 1,
+            "size": "1024x1024"
         }
         
-        # 发送请求
-        url = f"https://{host}{request_uri}"
+        # 添加超时设置
         response = requests.post(url, headers=headers, json=data, timeout=60)
-        response.raise_for_status()
+        response.raise_for_status()  # 检查HTTP状态码
         result = response.json()
         
         # 检查响应结构
-        if 'header' in result and result['header'].get('code') == 0:
-            if 'payload' in result and 'choices' in result['payload']:
-                choices = result['payload']['choices']
-                if choices and len(choices) > 0:
-                    choice = choices[0]
-                    if 'text' in choice and len(choice['text']) > 0:
-                        text = choice['text'][0]
-                        if 'content' in text:
-                            # 讯飞返回的是base64编码的图像
-                            image_base64 = text['content']
-                            return f"data:image/png;base64,{image_base64}"
-        
-        # 处理错误
-        error_msg = result.get('header', {}).get('message', '未知错误')
-        return f"生成失败：{error_msg}"
+        if 'data' in result and len(result['data']) > 0:
+            return result['data'][0]['url']
+        else:
+            error_msg = result.get('error', {}).get('message', '未知错误')
+            return f"生成失败：{error_msg}"
     except requests.exceptions.RequestException as e:
         return f"生成失败：网络错误 - {str(e)}"
     except Exception as e:

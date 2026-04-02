@@ -119,48 +119,20 @@ def generate_text_zhipu(prompt):
 # 讯飞星火文本生成
 def generate_text_xunfei(prompt):
     """使用讯飞星火生成文本"""
-    app_id = os.getenv('XUNFEI_APP_ID')
     api_key = os.getenv('XUNFEI_API_KEY')
-    api_secret = os.getenv('XUNFEI_API_SECRET')
     
-    if not app_id or not api_key or not api_secret:
+    if not api_key:
         return "请配置讯飞星火API密钥"
     
     try:
-        # 计算签名
-        import time
-        import hmac
-        import hashlib
-        import base64
-        
-        timestamp = str(int(time.time()))
-        host = "spark-api.cn-huabei-1.xf-yun.com"
-        request_uri = "/v3.1/chat"
-        
-        # 拼接待签名字符串（注意顺序和格式）
-        signature_origin = f"host: {host}\n"
-        signature_origin += f"date: {timestamp}\n"
-        signature_origin += f"POST {request_uri} HTTP/1.1\n"
-        signature_origin += f"content-type:application/json\n"
-        signature_origin += f"app_id:{app_id}\n"
-        signature_origin += f"sign_type:SIGN_TYPE_HMAC_SHA256"
-        
-        # 生成签名
-        signature_sha = hmac.new(api_secret.encode('utf-8'), signature_origin.encode('utf-8'), hashlib.sha256).digest()
-        signature = base64.b64encode(signature_sha).decode('utf-8')
-        
-        # 构建请求头
+        # 使用新的OpenAI兼容接口
+        url = "https://spark-api-open.xf-yun.com/v1/chat/completions"
         headers = {
             'Content-Type': 'application/json',
-            'Authorization': f'api_key="{api_key}", algorithm="hmac-sha256", headers="host date request-line content-type app_id sign_type", signature="{signature}"',
-            'Host': host,
-            'Date': timestamp,
-            'app_id': app_id
+            'Authorization': f'Bearer {api_key}'
         }
-        
-        # 构建请求数据
         data = {
-            "model": "generalv3",  # 使用通用模型
+            "model": "max",  # 使用max模型，可根据需要调整
             "messages": [
                 {
                     "role": "user",
@@ -172,23 +144,19 @@ def generate_text_xunfei(prompt):
         }
         
         # 添加超时设置
-        url = f"https://{host}{request_uri}"
         response = requests.post(url, headers=headers, json=data, timeout=60)
         response.raise_for_status()  # 检查HTTP状态码
         result = response.json()
         
         # 检查响应结构
-        if 'code' in result and result['code'] == 0:
-            if 'choices' in result and len(result['choices']) > 0:
-                choice = result['choices'][0]
-                if 'message' in choice and 'content' in choice['message']:
-                    return choice['message']['content']
-                else:
-                    return f"生成失败：响应格式错误 - {str(result)}"
+        if 'choices' in result and len(result['choices']) > 0:
+            choice = result['choices'][0]
+            if 'message' in choice and 'content' in choice['message']:
+                return choice['message']['content']
             else:
                 return f"生成失败：响应格式错误 - {str(result)}"
         else:
-            error_msg = result.get('message', '未知错误')
+            error_msg = result.get('error', {}).get('message', '未知错误')
             return f"生成失败：{error_msg}"
     except requests.exceptions.RequestException as e:
         return f"生成失败：网络错误 - {str(e)}"
