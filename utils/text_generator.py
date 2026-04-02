@@ -145,7 +145,12 @@ def generate_text_xunfei(prompt):
         
         # 添加超时设置
         response = requests.post(url, headers=headers, json=data, timeout=60)
-        response.raise_for_status()  # 检查HTTP状态码
+        
+        # 捕获详细的错误信息
+        if response.status_code != 200:
+            error_details = response.text
+            return f"生成失败：{response.status_code} {response.reason} - {error_details}"
+            
         result = response.json()
         
         # 检查响应结构
