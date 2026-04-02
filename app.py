@@ -407,10 +407,11 @@ if option == "API设置":
                                         placeholder="输入硅基流动API Key",
                                         key="silicon_api_key")
         if st.button("保存硅基流动配置"):
+            cleaned_api_key = clean_api_key(silicon_api_key)
             if 'silicon' not in st.session_state.api_keys:
                 st.session_state.api_keys['silicon'] = {}
-            st.session_state.api_keys['silicon']['api_key'] = silicon_api_key
-            os.environ['SILICON_API_KEY'] = silicon_api_key
+            st.session_state.api_keys['silicon']['api_key'] = cleaned_api_key
+            os.environ['SILICON_API_KEY'] = cleaned_api_key
             st.success("硅基流动配置已保存！")
     
     # 一键保存所有配置
@@ -713,51 +714,37 @@ elif option == "多语言在地化":
                 import io
                 
                 # 创建CSV内容
-                csv_output = io.BytesIO()
+                csv_output = io.StringIO()
+                writer = csv.writer(csv_output)
                 
-                # 写入UTF-8 BOM
-                csv_output.write(b'\xef\xbb\xbf')
-                
-                # 直接使用UTF-8编码写入
-                content = []
                 # 写入表头
                 headers = ['原文'] + target_languages
-                content.append(','.join(['"' + str(h).replace('"', '""') + '"' for h in headers]))
+                writer.writerow(headers)
                 
                 # 按行写入数据
                 lines = text.split('\n')
-                for i, line in enumerate(lines):
+                for line in lines:
                     if line.strip():
                         row = [line]
                         for lang in target_languages:
                             if lang in st.session_state.translations:
-                                # 获取该语言的完整翻译
-                                translation = st.session_state.translations[lang]
-                                # 按换行符分割
-                                trans_lines = translation.split('\n')
-                                # 检查是否有对应行的翻译
-                                if i < len(trans_lines):
-                                    row.append(trans_lines[i].strip())
+                                # 找到对应行的翻译
+                                trans_lines = st.session_state.translations[lang].split('\n')
+                                # 简单匹配：假设翻译结果的行数与原文相同
+                                if len(trans_lines) > len(row) - 1:
+                                    row.append(trans_lines[len(row) - 1])
                                 else:
-                                    # 如果翻译行数不够，使用完整翻译
-                                    row.append(translation.strip())
+                                    row.append('')
                             else:
                                 row.append('')
-                        # 处理逗号和引号，确保CSV格式正确
-                        row_str = ','.join(['"' + str(cell).replace('"', '""') + '"' for cell in row])
-                        content.append(row_str)
+                        writer.writerow(row)
                 
-                # 写入CSV内容
-                csv_content = '\n'.join(content).encode('utf-8')
-                csv_output.write(csv_content)
-                csv_output.seek(0)
-                
+                csv_content = csv_output.getvalue()
                 st.download_button(
                     label="💾 下载翻译结果 (CSV)",
-                    data=csv_output.getvalue(),
+                    data=csv_content,
                     file_name="translations.csv",
-                    mime="text/csv",
-                    key="download_csv_saved"
+                    mime="text/csv"
                 )
         
         if translate_btn:
@@ -799,51 +786,37 @@ elif option == "多语言在地化":
                             import io
                             
                             # 创建CSV内容
-                            csv_output = io.BytesIO()
+                            csv_output = io.StringIO()
+                            writer = csv.writer(csv_output)
                             
-                            # 写入UTF-8 BOM
-                            csv_output.write(b'\xef\xbb\xbf')
-                            
-                            # 直接使用UTF-8编码写入
-                            content = []
                             # 写入表头
                             headers = ['原文'] + target_languages
-                            content.append(','.join(['"' + str(h).replace('"', '""') + '"' for h in headers]))
+                            writer.writerow(headers)
                             
                             # 按行写入数据
                             lines = text.split('\n')
-                            for i, line in enumerate(lines):
+                            for line in lines:
                                 if line.strip():
                                     row = [line]
                                     for lang in target_languages:
                                         if lang in translations:
-                                            # 获取该语言的完整翻译
-                                            translation = translations[lang]
-                                            # 按换行符分割
-                                            trans_lines = translation.split('\n')
-                                            # 检查是否有对应行的翻译
-                                            if i < len(trans_lines):
-                                                row.append(trans_lines[i].strip())
+                                            # 找到对应行的翻译
+                                            trans_lines = translations[lang].split('\n')
+                                            # 简单匹配：假设翻译结果的行数与原文相同
+                                            if len(trans_lines) > len(row) - 1:
+                                                row.append(trans_lines[len(row) - 1])
                                             else:
-                                                # 如果翻译行数不够，使用完整翻译
-                                                row.append(translation.strip())
+                                                row.append('')
                                         else:
                                             row.append('')
-                                    # 处理逗号和引号，确保CSV格式正确
-                                    row_str = ','.join(['"' + str(cell).replace('"', '""') + '"' for cell in row])
-                                    content.append(row_str)
+                                    writer.writerow(row)
                             
-                            # 写入CSV内容
-                            csv_content = '\n'.join(content).encode('utf-8')
-                            csv_output.write(csv_content)
-                            csv_output.seek(0)
-                            
+                            csv_content = csv_output.getvalue()
                             st.download_button(
                                 label="💾 下载翻译结果 (CSV)",
-                                data=csv_output.getvalue(),
+                                data=csv_content,
                                 file_name="translations.csv",
-                                mime="text/csv",
-                                key="download_csv_new"
+                                mime="text/csv"
                             )
                         
                     except Exception as e:
