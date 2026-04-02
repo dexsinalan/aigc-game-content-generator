@@ -234,7 +234,6 @@ if option == "介绍文档":
     **技术栈：**
     - 前端：Streamlit
     - 后端：Python
-    - AI模型：国产大模型API
     """)
 
 # ==================== API设置页面 ====================
@@ -554,9 +553,65 @@ elif option == "数据生成":
             ("JSON", "XLSX", "mindmap")
         )
         
-        col1, col2 = st.columns([1, 4])
+        # 初始化会话状态变量
+        if 'generated_data' not in st.session_state:
+            st.session_state.generated_data = None
+        if 'generated_filename' not in st.session_state:
+            st.session_state.generated_filename = None
+        if 'generated_data_type' not in st.session_state:
+            st.session_state.generated_data_type = None
+        if 'copy_data' not in st.session_state:
+            st.session_state.copy_data = None
+        
+        # 生成按钮和操作按钮区域
+        col1, col2, col3 = st.columns([1, 1, 2])
         with col1:
             generate_btn = st.button("🚀 生成数据", type="primary")
+        
+        # 复制和下载按钮（仅在生成数据后显示）
+        if st.session_state.generated_data is not None:
+            with col2:
+                if st.session_state.generated_data_type == "JSON":
+                    json_str = json.dumps(st.session_state.generated_data, ensure_ascii=False, indent=2)
+                    if st.button("📋 复制JSON"):
+                        st.session_state.copy_data = json_str
+                        st.success("JSON数据已复制到剪贴板！")
+                elif st.session_state.generated_data_type == "XLSX":
+                    csv_str = st.session_state.generated_data.to_csv(index=False, encoding='utf-8')
+                    if st.button("📋 复制表格数据"):
+                        st.session_state.copy_data = csv_str
+                        st.success("表格数据已复制到剪贴板！")
+                elif st.session_state.generated_data_type == "mindmap":
+                    if st.button("📋 复制mindmap"):
+                        st.session_state.copy_data = st.session_state.generated_data
+                        st.success("思维导图数据已复制到剪贴板！")
+            
+            with col3:
+                if st.session_state.generated_data_type == "JSON":
+                    json_str = json.dumps(st.session_state.generated_data, ensure_ascii=False, indent=2)
+                    st.download_button(
+                        label="💾 下载JSON文件",
+                        data=json_str,
+                        file_name=st.session_state.generated_filename,
+                        mime="application/json"
+                    )
+                elif st.session_state.generated_data_type == "XLSX":
+                    buffer = BytesIO()
+                    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+                        st.session_state.generated_data.to_excel(writer, index=False, sheet_name='Sheet1')
+                    st.download_button(
+                        label="💾 下载Excel文件",
+                        data=buffer.getvalue(),
+                        file_name=st.session_state.generated_filename,
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+                elif st.session_state.generated_data_type == "mindmap":
+                    st.download_button(
+                        label="💾 下载mindmap文件",
+                        data=st.session_state.generated_data,
+                        file_name=st.session_state.generated_filename,
+                        mime="application/xmind"
+                    )
         
         if generate_btn:
             if not prompt:
@@ -571,63 +626,22 @@ elif option == "数据生成":
                             st.success("生成成功！")
                             st.markdown("### 生成结果")
                             
+                            # 保存生成的数据到会话状态
+                            st.session_state.generated_data = data
+                            st.session_state.generated_filename = filename
+                            st.session_state.generated_data_type = data_type
+                            
+                            # 显示生成结果
                             if data_type == "JSON":
-                                # 显示JSON预览
                                 st.json(data)
-                                # 提供下载和复制按钮
-                                json_str = json.dumps(data, ensure_ascii=False, indent=2)
-                                col1, col2 = st.columns([1, 1])
-                                with col1:
-                                    st.download_button(
-                                        label="💾 下载JSON文件",
-                                        data=json_str,
-                                        file_name=filename,
-                                        mime="application/json"
-                                    )
-                                with col2:
-                                    if st.button("📋 复制JSON"):
-                                        st.session_state['copy_data'] = json_str
-                                        st.success("JSON数据已复制到剪贴板！")
-                            
                             elif data_type == "XLSX":
-                                # 显示表格预览
                                 st.dataframe(data)
-                                # 提供下载按钮
-                                buffer = BytesIO()
-                                with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
-                                    data.to_excel(writer, index=False, sheet_name='Sheet1')
-                                st.download_button(
-                                    label="💾 下载Excel文件",
-                                    data=buffer.getvalue(),
-                                    file_name=filename,
-                                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                                )
-                                # 提供复制按钮（复制为CSV格式）
-                                if st.button("📋 复制表格数据"):
-                                    csv_str = data.to_csv(index=False, encoding='utf-8')
-                                    st.session_state['copy_data'] = csv_str
-                                    st.success("表格数据已复制到剪贴板！")
-                            
                             elif data_type == "mindmap":
-                                # 显示思维导图预览（文本形式）
                                 st.text(data)
-                                # 提供下载和复制按钮
-                                col1, col2 = st.columns([1, 1])
-                                with col1:
-                                    st.download_button(
-                                        label="💾 下载mindmap文件",
-                                        data=data,
-                                        file_name=filename,
-                                        mime="application/xmind"
-                                    )
-                                with col2:
-                                    if st.button("📋 复制mindmap"):
-                                        st.session_state['copy_data'] = data
-                                        st.success("思维导图数据已复制到剪贴板！")
                         
                         # JavaScript 复制功能
-                        if 'copy_data' in st.session_state:
-                            copy_data = st.session_state['copy_data']
+                        if st.session_state.copy_data is not None:
+                            copy_data = st.session_state.copy_data
                             script = f"""
                             <script>
                             navigator.clipboard.writeText('{copy_data}').then(function() {{
@@ -638,7 +652,7 @@ elif option == "数据生成":
                             </script>
                             """
                             st.markdown(script, unsafe_allow_html=True)
-                            del st.session_state['copy_data']
+                            st.session_state.copy_data = None
                         else:
                             st.error(filename)  # 显示错误信息
                             
