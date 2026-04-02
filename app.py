@@ -489,7 +489,15 @@ elif option == "文本生成":
         with col1:
             generate_btn = st.button("🚀 生成文本", type="primary")
         with col2:
-            save_text_btn = st.button("💾 保存文本", type="primary")
+            save_text_btn = st.markdown("""
+            <style>
+            button[data-testid="baseButton-secondary"] {
+                background-color: #4CAF50 !important;
+                color: white !important;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+            save_text_btn = st.button("💾 保存文本", key="save_text_btn")
         
         # 显示保存的生成结果
         if 'generated_text' in st.session_state and st.session_state.generated_text:
@@ -578,7 +586,15 @@ elif option == "图像生成":
         with col1:
             generate_btn = st.button("🚀 生成图像", type="primary")
         with col2:
-            save_image_btn = st.button("💾 保存图像", type="primary")
+            st.markdown("""
+            <style>
+            button[data-testid="baseButton-secondary"] {
+                background-color: #4CAF50 !important;
+                color: white !important;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+            save_image_btn = st.button("💾 保存图像", key="save_image_btn")
         
         # 显示保存的生成结果
         if 'generated_image' in st.session_state and st.session_state.generated_image:
@@ -959,7 +975,7 @@ st.markdown("""
     bottom: 30px;
     right: 30px;
     z-index: 9999;
-    background-color: #4CAF50;
+    background-color: #000000;
     color: white;
     width: 50px;
     height: 50px;
@@ -971,10 +987,11 @@ st.markdown("""
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
     text-decoration: none;
+    border: 2px solid white;
 }
 
 .back-to-top:hover {
-    background-color: #45a049;
+    background-color: #333333;
     transform: translateY(-5px);
 }
 
