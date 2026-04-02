@@ -64,10 +64,19 @@ def init_session_state():
         st.session_state.current_page = "文本生成"
     if 'api_keys' not in st.session_state:
         st.session_state.api_keys = {
-            'baidu': {'api_key': '', 'secret_key': ''},
-            'ali': {'api_key': ''},
-            'zhipu': {'api_key': ''},
-            'xunfei': {'app_id': '', 'api_key': '', 'api_secret': ''}
+            'baidu': {
+                'api_key': os.getenv('BAIDU_API_KEY', ''),
+                'secret_key': os.getenv('BAIDU_SECRET_KEY', '')
+            },
+            'ali': {
+                'api_key': os.getenv('ALI_API_KEY', '')
+            },
+            'zhipu': {
+                'api_key': os.getenv('ZHIPU_API_KEY', '')
+            },
+            'xunfei': {
+                'api_key': os.getenv('XUNFEI_API_KEY', '')
+            }
         }
 
 # ==================== 页面配置 ====================
