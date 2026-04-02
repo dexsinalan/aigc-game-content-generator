@@ -438,24 +438,6 @@ elif option == "文本生成":
             st.success("生成成功！")
             st.markdown("### 生成结果")
             st.write(st.session_state.generated_text)
-            
-            # 提供复制按钮
-            col1, col2 = st.columns([1, 4])
-            with col1:
-                if st.button("📋 复制文本"):
-                    # 直接使用JavaScript复制，不使用会话状态
-                    script = f"""
-                    <script>
-                    navigator.clipboard.writeText('{st.session_state.generated_text}').then(function() {{
-                        console.log('复制成功');
-                    }}, function(err) {{
-                        console.error('复制失败:', err);
-                    }});
-                    </script>
-                    """
-                    st.markdown(script, unsafe_allow_html=True)
-                    st.success("文本已复制到剪贴板！")
-            
             st.code(st.session_state.generated_text, language="text")
         
         if generate_btn:
@@ -496,32 +478,16 @@ elif option == "图像生成":
             st.markdown("### 生成结果")
             st.image(st.session_state.generated_image, use_container_width=True)
             
-            # 提供下载和复制按钮
+            # 提供下载按钮
             if st.session_state.generated_image.startswith('http'):
                 response = requests.get(st.session_state.generated_image)
                 if response.status_code == 200:
-                    col1, col2 = st.columns([1, 1])
-                    with col1:
-                        st.download_button(
-                            label="💾 下载图像",
-                            data=response.content,
-                            file_name=f"generated_image_{st.session_state.selected_model}.png",
-                            mime="image/png"
-                        )
-                    with col2:
-                        if st.button("📋 复制图像链接"):
-                            # 直接使用JavaScript复制，不使用会话状态
-                            script = f"""
-                            <script>
-                            navigator.clipboard.writeText('{st.session_state.generated_image}').then(function() {{
-                                console.log('复制成功');
-                            }}, function(err) {{
-                                console.error('复制失败:', err);
-                            }});
-                            </script>
-                            """
-                            st.markdown(script, unsafe_allow_html=True)
-                            st.success("图像链接已复制到剪贴板！")
+                    st.download_button(
+                        label="💾 下载图像",
+                        data=response.content,
+                        file_name=f"generated_image_{st.session_state.selected_model}.png",
+                        mime="image/png"
+                    )
         
         if generate_btn:
             if not prompt:
@@ -570,58 +536,11 @@ elif option == "数据生成":
         with col1:
             generate_btn = st.button("🚀 生成数据", type="primary")
         
-        # 复制和下载按钮（仅在生成数据后显示）
+        # 下载按钮（仅在生成数据后显示）
         if st.session_state.generated_data is not None:
             current_data_type = st.session_state.generated_data_type
             
             with col2:
-                if current_data_type == "JSON":
-                    json_str = json.dumps(st.session_state.generated_data, ensure_ascii=False, indent=2)
-                    if st.button("📋 复制JSON"):
-                        # 直接使用JavaScript复制，不使用会话状态
-                        script = f"""
-                        <script>
-                        navigator.clipboard.writeText('{json_str}').then(function() {{
-                            console.log('复制成功');
-                        }}, function(err) {{
-                            console.error('复制失败:', err);
-                        }});
-                        </script>
-                        """
-                        st.markdown(script, unsafe_allow_html=True)
-                        st.success("JSON数据已复制到剪贴板！")
-                elif current_data_type == "XLSX":
-                    csv_str = st.session_state.generated_data.to_csv(index=False, encoding='utf-8')
-                    if st.button("📋 复制表格数据"):
-                        # 直接使用JavaScript复制，不使用会话状态
-                        script = f"""
-                        <script>
-                        navigator.clipboard.writeText('{csv_str}').then(function() {{
-                            console.log('复制成功');
-                        }}, function(err) {{
-                            console.error('复制失败:', err);
-                        }});
-                        </script>
-                        """
-                        st.markdown(script, unsafe_allow_html=True)
-                        st.success("表格数据已复制到剪贴板！")
-                elif current_data_type == "mindmap":
-                    mindmap_str = st.session_state.generated_data
-                    if st.button("📋 复制mindmap"):
-                        # 直接使用JavaScript复制，不使用会话状态
-                        script = f"""
-                        <script>
-                        navigator.clipboard.writeText('{mindmap_str}').then(function() {{
-                            console.log('复制成功');
-                        }}, function(err) {{
-                            console.error('复制失败:', err);
-                        }});
-                        </script>
-                        """
-                        st.markdown(script, unsafe_allow_html=True)
-                        st.success("思维导图数据已复制到剪贴板！")
-            
-            with col3:
                 if current_data_type == "JSON":
                     json_str = json.dumps(st.session_state.generated_data, ensure_ascii=False, indent=2)
                     st.download_button(
