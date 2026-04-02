@@ -119,12 +119,30 @@ with st.expander("📖 应用介绍"):
 
 # ==================== 侧边栏导航 ====================
 
-option = st.sidebar.radio(
-    "选择功能",
-    ("API设置", "文本生成", "图像生成", "数据生成", "API文档"),
-    index=0,
-    horizontal=False
-)
+st.sidebar.title("功能选择")
+
+# 使用按钮组替代单选按钮
+if st.sidebar.button("🔑 API设置", use_container_width=True, key="btn_api_settings"):
+    option = "API设置"
+    st.session_state.current_page = "API设置"
+elif st.sidebar.button("📝 文本生成", use_container_width=True, key="btn_text_gen"):
+    option = "文本生成"
+    st.session_state.current_page = "文本生成"
+elif st.sidebar.button("🖼️ 图像生成", use_container_width=True, key="btn_image_gen"):
+    option = "图像生成"
+    st.session_state.current_page = "图像生成"
+elif st.sidebar.button("📊 数据生成", use_container_width=True, key="btn_data_gen"):
+    option = "数据生成"
+    st.session_state.current_page = "数据生成"
+elif st.sidebar.button("📚 API文档", use_container_width=True, key="btn_api_docs"):
+    option = "API文档"
+    st.session_state.current_page = "API文档"
+else:
+    # 默认选择
+    if 'current_page' not in st.session_state:
+        option = "API设置"
+    else:
+        option = st.session_state.current_page
 
 # ==================== API设置页面 ====================
 
