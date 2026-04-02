@@ -502,8 +502,21 @@ elif option == "图像生成":
                         image_url = generate_image(prompt, st.session_state.selected_model)
                         # 保存结果到会话状态
                         st.session_state.generated_image = image_url
-                        # 刷新页面以显示结果
-                        st.experimental_rerun()
+                        # 直接显示结果，不需要刷新页面
+                        st.success("生成成功！")
+                        st.markdown("### 生成结果")
+                        st.image(image_url, use_container_width=True)
+                        
+                        # 提供下载按钮
+                        if image_url.startswith('http'):
+                            response = requests.get(image_url)
+                            if response.status_code == 200:
+                                st.download_button(
+                                    label="💾 下载图像",
+                                    data=response.content,
+                                    file_name=f"generated_image_{st.session_state.selected_model}.png",
+                                    mime="image/png"
+                                )
                     except Exception as e:
                         st.error(f"生成失败：{str(e)}")
 
