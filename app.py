@@ -15,6 +15,10 @@ from utils.data_generator import generate_json_data, generate_xlsx_data, generat
 from utils.translation_generator import translate_text_for_model, SUPPORTED_LANGUAGES
 from utils.prompt_templates import TEXT_TEMPLATES, IMAGE_TEMPLATES, DATA_TEMPLATES
 from utils.PXI_generator import analyze_pxi_dimensions, display_pxi_results, display_academic_background
+from utils.level_generator import (
+    generate_level, generate_level_story, validate_ascii_map, 
+    parse_ascii_map, display_level_elements_reference, display_academic_background as display_level_academic_background
+)
 
 # 加载环境变量
 load_dotenv()
@@ -146,6 +150,7 @@ image_gen_btn = st.sidebar.button("🖼️ 游戏美术资源", use_container_wi
 data_gen_btn = st.sidebar.button("📊 游戏数据配置", use_container_width=True, key="btn_data_gen")
 translation_btn = st.sidebar.button("🌍 游戏多语言本地化", use_container_width=True, key="btn_translation")
 player_exp_btn = st.sidebar.button("🎮 玩家体验预测器", use_container_width=True, key="btn_player_exp")
+level_gen_btn = st.sidebar.button("🏗️ 关卡原型生成器", use_container_width=True, key="btn_level_gen")
 thanks_btn = st.sidebar.button("🙏 致谢及免责声明", use_container_width=True, key="btn_thanks")
 
 
@@ -166,6 +171,8 @@ elif translation_btn:
     st.session_state.current_page = "多语言在地化"
 elif player_exp_btn:
     st.session_state.current_page = "玩家体验预测器"
+elif level_gen_btn:
+    st.session_state.current_page = "关卡原型生成器"
 elif thanks_btn:
     st.session_state.current_page = "致谢"
 
@@ -174,7 +181,7 @@ elif thanks_btn:
 option = st.session_state.current_page
 
 # ==================== 模型选择 ====================
-if option in ["文本生成", "图像生成", "数据生成", "多语言在地化", "玩家体验预测器"]:
+if option in ["文本生成", "图像生成", "数据生成", "多语言在地化", "玩家体验预测器", "关卡原型生成器"]:
     st.sidebar.divider()
     st.sidebar.subheader("🤖 模型选择")
     
@@ -1191,7 +1198,7 @@ elif option == "玩家体验预测器":
         # 输入游戏玩法描述
         gameplay_description = st.text_area(
             "输入游戏玩法描述", 
-            placeholder="例如：玩家需要在極短時間內解開複雜謎題，每關有3次失敗機會，成功後獲得星星獎勵", 
+            placeholder="例如：玩家扮演一名能操纵阴影的刺客。在名为「光辉塔」的​​关卡中，地板会周期性地被强光照射。玩家必须在强光来临前，利用「影遁」技能跳跃到移动的守卫影子中躲避伤害。", 
             height=200
         )
         
@@ -1209,6 +1216,113 @@ elif option == "玩家体验预测器":
                     else:
                         # 显示分析结果
                         display_pxi_results(dimensions, scores, analysis, elapsed_time, tokens)
+
+# ==================== 关卡原型生成器 ====================
+
+elif option == "关卡原型生成器":
+    st.header("🏗️ 关卡原型生成器 (Mixed-Initiative Level Designer)")
+    st.write("基于 Togelius (2015) 与 Ratican (2024) 提出的混合主动式设计理念，实现 AI 与人类设计师协同的关卡设计工具。")
+    
+    # 学术背景介绍
+    display_level_academic_background()
+    display_level_elements_reference()
+    
+    # 检查API是否配置
+    if not check_api_configured(st.session_state.selected_model):
+        st.warning(f"⚠️ {st.session_state.selected_model} 的API密钥未配置，请在侧边栏选择其他模型或前往「API设置」页面配置")
+    else:
+        # 关卡参数设置
+        col1, col2 = st.columns(2)
+        with col1:
+            level_width = st.number_input("地图宽度", min_value=5, max_value=20, value=10)
+        with col2:
+            level_height = st.number_input("地图高度", min_value=5, max_value=20, value=10)
+        
+        # 关卡描述输入
+        level_description = st.text_area(
+            "关卡描述",
+            placeholder="例如：一个地下城关卡，玩家需要从入口找到出口，途中会遇到怪物和陷阱...",
+            height=100
+        )
+        
+        # 生成关卡按钮
+        if st.button("🎲 生成关卡", type="primary"):
+            if not level_description:
+                st.error("请输入关卡描述")
+            else:
+                with st.spinner("生成关卡中..."):
+                    ascii_map, json_map, level_desc, elapsed_time, tokens, error = generate_level(
+                        level_description, level_width, level_height, st.session_state.selected_model
+                    )
+                    
+                    if error:
+                        st.error(error)
+                    else:
+                        # 保存到session state
+                        st.session_state.generated_ascii_map = ascii_map
+                        st.session_state.generated_json_map = json_map
+                        st.session_state.level_desc = level_desc
+                        st.success("关卡生成成功！")
+        
+        # 显示生成的关卡
+        if 'generated_ascii_map' in st.session_state and st.session_state.generated_ascii_map:
+            st.markdown("### 🗺️ 生成的关卡地图")
+            
+            # 使用等宽字体显示ASCII地图
+            st.text_area(
+                "ASCII地图（可直接编辑）",
+                value=st.session_state.generated_ascii_map,
+                height=300,
+                key="ascii_map_editor"
+            )
+            
+            # 显示JSON格式
+            with st.expander("📊 JSON格式"):
+                st.json(st.session_state.generated_json_map)
+            
+            # 验证地图
+            is_valid, message = validate_ascii_map(st.session_state.generated_ascii_map)
+            if is_valid:
+                st.success(f"✅ {message}")
+            else:
+                st.error(f"❌ {message}")
+            
+            # 生成背景故事按钮
+            if st.button("📖 生成背景故事和怪物配置"):
+                with st.spinner("生成中..."):
+                    story_data, elapsed_time, tokens, error = generate_level_story(
+                        st.session_state.generated_ascii_map, 
+                        st.session_state.selected_model
+                    )
+                    
+                    if error:
+                        st.error(error)
+                    else:
+                        st.session_state.level_story = story_data
+                        st.success("背景故事生成成功！")
+            
+            # 显示背景故事
+            if 'level_story' in st.session_state and st.session_state.level_story:
+                st.markdown("### 📚 关卡背景故事")
+                st.write(st.session_state.level_story.get('background_story', ''))
+                
+                # 显示怪物配置
+                st.markdown("### 👹 怪物配置")
+                monster_config = st.session_state.level_story.get('monster_config', [])
+                if monster_config:
+                    for monster in monster_config:
+                        with st.expander(f"{monster.get('name', '未知怪物')} ({monster.get('symbol', '?')})"):
+                            st.write(f"**描述:** {monster.get('description', '')}")
+                            st.write(f"**生命值:** {monster.get('hp', 0)}")
+                            st.write(f"**攻击力:** {monster.get('attack', 0)}")
+                            st.write(f"**行为模式:** {monster.get('behavior', '')}")
+                
+                # 显示设计要点
+                st.markdown("### 💡 关卡设计要点")
+                st.write(st.session_state.level_story.get('level_design_notes', ''))
+                
+                # 显示耗时和Token
+                st.info(f"本次耗时：{elapsed_time:.2f}秒 | 消耗Token：{tokens}")
 
 # ==================== 致谢页面 ====================
 
