@@ -1232,11 +1232,13 @@ elif option == "关卡原型生成器":
         st.warning(f"⚠️ {st.session_state.selected_model} 的API密钥未配置，请在侧边栏选择其他模型或前往「API设置」页面配置")
     else:
         # 关卡参数设置
-        col1, col2 = st.columns(2)
+        col1, col2, col3 = st.columns(3)
         with col1:
             level_width = st.number_input("地图宽度", min_value=5, max_value=20, value=10)
         with col2:
             level_height = st.number_input("地图高度", min_value=5, max_value=20, value=10)
+        with col3:
+            level_shape = st.selectbox("地图形状", ["矩形", "不规则"], index=0, key="level_shape")
         
         # 关卡描述输入
         level_description = st.text_area(
@@ -1252,7 +1254,7 @@ elif option == "关卡原型生成器":
             else:
                 with st.spinner("生成关卡中..."):
                     ascii_map, json_map, level_desc, elapsed_time, tokens, error = generate_level(
-                        level_description, level_width, level_height, st.session_state.selected_model
+                        level_description, level_width, level_height, st.session_state.selected_model, level_shape
                     )
                     
                     if error:

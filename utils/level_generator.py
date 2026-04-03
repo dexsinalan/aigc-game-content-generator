@@ -43,8 +43,10 @@ ACADEMIC_BACKGROUND = """
 """
 
 
-def generate_level_prompt(description, width=10, height=10):
+def generate_level_prompt(description, width=10, height=10, shape="矩形"):
     """构建关卡生成提示词"""
+    shape_requirement = "" if shape == "矩形" else "6. 地图形状应该是不规则的，不要是完美的矩形"
+    
     prompt = f"""请根据以下描述生成一个 {width}x{height} 的游戏关卡地图。
 
 关卡描述：
@@ -70,6 +72,7 @@ B = Boss
 3. 确保地图有可行路径从P到E
 4. 合理分布怪物、陷阱、宝箱等元素
 5. 地图应该有挑战性但不过于困难
+{shape_requirement}
 
 请按照以下JSON格式输出结果：
 {{
@@ -125,10 +128,10 @@ def parse_ascii_map(ascii_map):
     return [list(line) for line in lines]
 
 
-def generate_level(description, width, height, model):
+def generate_level(description, width, height, model, shape="矩形"):
     """生成关卡"""
     try:
-        prompt = generate_level_prompt(description, width, height)
+        prompt = generate_level_prompt(description, width, height, shape)
         result, elapsed_time, tokens = generate_text_for_model(prompt, model)
         
         if not result:
