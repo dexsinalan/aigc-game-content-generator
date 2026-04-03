@@ -1431,7 +1431,7 @@ elif option == "VGDL生成器":
                         st.success("VGDL代码生成成功！")
                         
                         # 重新渲染页面以显示更新后的内容
-                        st.experimental_rerun()
+                        st.rerun()
 
 # ==================== 致谢页面 ====================
 
