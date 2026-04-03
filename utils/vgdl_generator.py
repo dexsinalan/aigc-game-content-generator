@@ -35,10 +35,6 @@ ACADEMIC_BACKGROUND = """
    - 将生成的Pygame代码保存为 .py 文件
    - 在命令行中运行：`python (文件名).py`
 2. **白模测试**：
-   - 使用方向键控制玩家（蓝色方块）
-   - 与敌人（红色方块）战斗
-   - 收集目标（绿色/黄色方块）
-   - 避开墙壁（黑色/灰色方块）
 3. **修改扩展**：
    - 可以根据需要修改Pygame代码
    - 添加更多游戏功能和视觉效果
@@ -126,12 +122,20 @@ Pygame 脚本要求：
 6. 碰撞检测和游戏规则逻辑（必须直接翻译自InteractionSet）
 7. 基本的游戏循环和渲染
 8. 必须包含一个简单的「游戏结束」或「胜利」文字提示
+9. 必须包含错误处理和异常捕获，确保游戏不会崩溃
+10. 必须包含边界检查，防止对象超出屏幕范围
+11. 必须正确管理Pygame资源，确保在游戏结束时正确释放
+12. 确保所有精灵组都正确初始化和管理
+13. 确保所有必要的Pygame初始化步骤都已完成
 
 重要：
 - 所有的碰撞逻辑必须直接翻译自 InteractionSet，例如：
   如果 VGDL 里有 'bullet alien > killSprite'，
   Pygame 代码里必须有对应的 spritecollide 逻辑。
 - 确保代码可以直接运行，不需要额外的文件或依赖
+- 代码必须健壮，能够处理各种边缘情况，不会因为缺少对象或错误的索引而崩溃
+- 必须使用try-except-finally结构确保游戏能够正常退出
+- 必须确保所有变量和对象都正确初始化，避免使用未定义的变量
 
 输出格式：
 ```vgdl
@@ -175,10 +179,16 @@ def generate_vgdl(game_description, model):
             return None, None, elapsed_time, tokens, "未能提取Pygame脚本"
         pygame_code = pygame_match.group(1).strip()
         
+        # 检查Pygame脚本语法
+        pygame_issues = check_pygame_syntax(pygame_code)
+        if pygame_issues:
+            return vgdl_code, pygame_code, elapsed_time, tokens, f"Pygame脚本语法警告：{'；'.join(pygame_issues)}"
+        
         return vgdl_code, pygame_code, elapsed_time, tokens, None
         
     except Exception as e:
-        return None, None, 0, 0, f"生成失败：{str(e)}"
+        error_msg = f"生成失败：{str(e)}"
+        return None, None, 0, 0, error_msg
 
 
 def check_vgdl_logic(vgdl_code):
@@ -201,6 +211,33 @@ def check_vgdl_logic(vgdl_code):
     # 检查TerminationSet中是否有终止条件
     if 'win=' not in vgdl_code:
         issues.append("TerminationSet 中缺少胜利条件")
+    
+    return issues
+
+
+def check_pygame_syntax(pygame_code):
+    """检查Pygame脚本的语法正确性"""
+    issues = []
+    
+    try:
+        # 检查基本语法
+        compile(pygame_code, '<string>', 'exec')
+    except SyntaxError as e:
+        issues.append(f"Python语法错误：{str(e)}")
+    
+    # 检查必要的导入
+    required_imports = ['pygame', 'sys']
+    for imp in required_imports:
+        if f'import {imp}' not in pygame_code and f'from {imp}' not in pygame_code:
+            issues.append(f"缺少必要的导入：{imp}")
+    
+    # 检查游戏循环结构
+    if 'while' not in pygame_code or 'pygame.event.get()' not in pygame_code:
+        issues.append("缺少完整的游戏循环结构")
+    
+    # 检查主入口
+    if '__name__ == "__main__"' not in pygame_code:
+        issues.append("缺少主程序入口")
     
     return issues
 
@@ -245,4 +282,3 @@ def test_vgdl_code(vgdl_code):
         return False, "⚠️ py-vgdl库未安装。请在本地环境中运行：`pip install py-vgdl` 来测试VGDL代码。"
     except Exception as e:
         return False, f"❌ 解析失败：{str(e)}"
-
