@@ -1124,10 +1124,13 @@ elif option == "多语言在地化":
                 # 生成CSV格式数据
                 import csv
                 import io
+                import codecs
                 
-                # 创建CSV内容
-                csv_output = io.StringIO()
-                writer = csv.writer(csv_output)
+                # 创建CSV内容，使用UTF-8编码并添加BOM
+                csv_output = io.BytesIO()
+                # 添加UTF-8 BOM以确保Excel正确识别编码
+                csv_output.write(codecs.BOM_UTF8)
+                writer = csv.writer(codecs.getwriter('utf-8')(csv_output))
                 
                 # 写入表头
                 headers = ['原文'] + target_languages
@@ -1151,10 +1154,10 @@ elif option == "多语言在地化":
                                 row.append('')
                         writer.writerow(row)
                 
-                csv_content = csv_output.getvalue()
+                csv_output.seek(0)
                 st.download_button(
                     label="💾 下载翻译结果 (CSV)",
-                    data=csv_content,
+                    data=csv_output,
                     file_name="translations.csv",
                     mime="text/csv"
                 )
@@ -1196,10 +1199,13 @@ elif option == "多语言在地化":
                             # 生成CSV格式数据
                             import csv
                             import io
+                            import codecs
                             
-                            # 创建CSV内容
-                            csv_output = io.StringIO()
-                            writer = csv.writer(csv_output)
+                            # 创建CSV内容，使用UTF-8编码并添加BOM
+                            csv_output = io.BytesIO()
+                            # 添加UTF-8 BOM以确保Excel正确识别编码
+                            csv_output.write(codecs.BOM_UTF8)
+                            writer = csv.writer(codecs.getwriter('utf-8')(csv_output))
                             
                             # 写入表头
                             headers = ['原文'] + target_languages
@@ -1223,10 +1229,10 @@ elif option == "多语言在地化":
                                             row.append('')
                                     writer.writerow(row)
                             
-                            csv_content = csv_output.getvalue()
+                            csv_output.seek(0)
                             st.download_button(
                                 label="💾 下载翻译结果 (CSV)",
-                                data=csv_content,
+                                data=csv_output,
                                 file_name="translations.csv",
                                 mime="text/csv"
                             )
