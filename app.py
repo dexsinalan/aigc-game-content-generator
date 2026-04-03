@@ -1437,6 +1437,16 @@ elif option == "VGDL生成器":
                         else:
                             st.warning(message)
                 
+                # 下载Pygame脚本按钮
+                if 'generated_pygame' in st.session_state and st.session_state.generated_pygame:
+                    st.download_button(
+                        label="💾 下载 Pygame 游戏文件",
+                        data=st.session_state.generated_pygame,
+                        file_name="game_prototype.py",
+                        mime="text/x-python"
+                    )
+                    st.caption("注：下载后在本地安装 `pip install pygame` 即可运行。")
+                
                 # 启动游戏白模按钮
                 if st.button("🚀 启动游戏白模 (Live Play)"):
                     if 'generated_pygame' in st.session_state and st.session_state.generated_pygame:
