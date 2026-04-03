@@ -29,20 +29,11 @@ ACADEMIC_BACKGROUND = """
    - 点击「下载VGDL文件」按钮，将VGDL代码保存为 .vgdl 文件
    - 点击「下载 Pygame 游戏文件」按钮，将Pygame脚本保存为 .py 文件
 
-**如何使用VGDL代码：**
-1. **学术研究**：
-   - 安装 py-vgdl 库：`pip install py-vgdl`
-   - 使用 VGDLParser 加载生成的文件
-   - 用于通用游戏AI研究和测试
-2. **游戏引擎导入**：
-   - 可以将VGDL逻辑转换为其他游戏引擎的实现
-   - 作为游戏设计文档的标准化表示
-
 **如何使用Pygame脚本：**
 1. **本地运行**：
    - 安装 pygame：`pip install pygame`
    - 将生成的Pygame代码保存为 .py 文件
-   - 在命令行中运行：`python game.py`
+   - 在命令行中运行：`python (文件名).py`
 2. **白模测试**：
    - 使用方向键控制玩家（蓝色方块）
    - 与敌人（红色方块）战斗
