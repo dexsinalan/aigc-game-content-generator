@@ -236,7 +236,8 @@ def check_pygame_syntax(pygame_code):
         issues.append("缺少完整的游戏循环结构")
     
     # 检查主入口
-    if '__name__ == "__main__"' not in pygame_code:
+    import re
+    if not re.search(r'__name__\s*==\s*["\']__main__["\']', pygame_code):
         issues.append("缺少主程序入口")
     
     return issues
