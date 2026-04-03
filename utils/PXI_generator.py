@@ -68,7 +68,7 @@ ACADEMIC_BACKGROUND = """
 
 def build_pxi_prompt(gameplay_description):
     """构建PXI分析提示词"""
-    prompt = f"""请根据 Player Experience Inventory (PXI) 框架，分析以下游戏玩法描述，并提供各维度的预测分值（0-10分）。
+    prompt = f"""请根据 Player Experience Inventory (PXI) 框架，客观分析以下游戏玩法描述，并提供各维度的预测分值（0-10分）。
 
 游戏玩法描述：
 {gameplay_description}
@@ -81,6 +81,18 @@ PXI维度包括：
 5. Relatedness (关联性)
 6. Flow (心流体验)
 
+评分标准（请严格遵循）：
+- 0-3分：该维度存在明显缺陷或不足
+- 4-6分：该维度表现一般，有改进空间
+- 7-8分：该维度表现良好
+- 9-10分：该维度表现优秀，几乎无缺陷
+
+重要提示：
+1. 请保持客观公正，不要过度乐观
+2. 根据描述中明确提到的元素评分，不要假设未提及的优点
+3. 如果描述中缺少某维度的关键要素，请给出较低分数
+4. 指出每个维度的潜在问题和改进建议
+
 请按照以下JSON格式输出结果：
 {{
   "dimensions": {{
@@ -91,7 +103,7 @@ PXI维度包括：
     "Relatedness": 0-10,
     "Flow": 0-10
   }},
-  "analysis": "对各维度评分的简要分析和解释"
+  "analysis": "客观分析各维度评分的原因，指出潜在问题和改进建议"
 }}
 
 请确保输出是有效的JSON格式，只包含上述内容，不要有其他文字。"""
