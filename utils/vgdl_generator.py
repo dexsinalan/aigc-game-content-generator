@@ -126,12 +126,122 @@ Pygame 脚本要求：
 6. 碰撞检测和游戏规则逻辑（必须直接翻译自InteractionSet）
 7. 基本的游戏循环和渲染
 8. 必须包含一个简单的「游戏结束」或「胜利」文字提示
+9. 必须包含错误处理和异常捕获，确保游戏不会崩溃
+10. 确保所有变量和对象都正确初始化
 
 重要：
 - 所有的碰撞逻辑必须直接翻译自 InteractionSet，例如：
   如果 VGDL 里有 'bullet alien > killSprite'，
   Pygame 代码里必须有对应的 spritecollide 逻辑。
 - 确保代码可以直接运行，不需要额外的文件或依赖
+- 确保代码健壮，不会因为缺少对象或错误的索引而崩溃
+- 提供清晰的游戏控制说明
+
+Pygame 代码结构示例：
+```python
+import pygame
+import sys
+
+# 初始化pygame
+pygame.init()
+
+# 设置窗口大小
+WIDTH, HEIGHT = 800, 600
+window = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Game Prototype")
+
+# 颜色定义
+BLUE = (0, 0, 255)    # 玩家
+RED = (255, 0, 0)      # 敌人
+GREEN = (0, 255, 0)    # 目标
+BLACK = (0, 0, 0)      # 墙壁
+WHITE = (255, 255, 255) # 背景
+
+# 游戏对象类
+class Player(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.Surface((30, 30))
+        self.image.fill(BLUE)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.speed = 5
+
+    def update(self, keys):
+        if keys[pygame.K_LEFT]:
+            self.rect.x -= self.speed
+        if keys[pygame.K_RIGHT]:
+            self.rect.x += self.speed
+        if keys[pygame.K_UP]:
+            self.rect.y -= self.speed
+        if keys[pygame.K_DOWN]:
+            self.rect.y += self.speed
+
+        # 边界检查
+        self.rect.x = max(0, min(self.rect.x, WIDTH - 30))
+        self.rect.y = max(0, min(self.rect.y, HEIGHT - 30))
+
+# 游戏主循环
+def main():
+    try:
+        # 创建精灵组
+        all_sprites = pygame.sprite.Group()
+        enemies = pygame.sprite.Group()
+        walls = pygame.sprite.Group()
+        goals = pygame.sprite.Group()
+
+        # 创建玩家
+        player = Player(50, 50)
+        all_sprites.add(player)
+
+        # 创建其他游戏对象...
+
+        # 游戏循环
+        running = True
+        clock = pygame.time.Clock()
+
+        while running:
+            # 处理事件
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+
+            # 获取键盘状态
+            keys = pygame.key.get_pressed()
+
+            # 更新游戏对象
+            player.update(keys)
+            # 更新其他对象...
+
+            # 碰撞检测
+            # 处理碰撞...
+
+            # 渲染
+            window.fill(WHITE)
+            all_sprites.draw(window)
+            # 绘制其他元素...
+
+            # 显示游戏状态
+            font = pygame.font.Font(None, 36)
+            text = font.render("Score: 0", True, BLACK)
+            window.blit(text, (10, 10))
+
+            # 更新显示
+            pygame.display.flip()
+            clock.tick(60)
+
+    except Exception as e:
+        print(f"Error: {e}")
+    finally:
+        pygame.quit()
+        sys.exit()
+
+if __name__ == "__main__":
+    main()
+```
+
+请严格按照上述结构生成Pygame代码，确保代码健壮且不会崩溃。
 
 输出格式：
 ```vgdl
