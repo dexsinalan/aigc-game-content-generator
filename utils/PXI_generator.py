@@ -139,10 +139,6 @@ def analyze_pxi_dimensions(gameplay_description, model):
 
 def create_radar_chart(scores):
     """创建PXI雷达图"""
-    # 设置中文字体
-    plt.rcParams['font.sans-serif'] = ['SimHei']
-    plt.rcParams['axes.unicode_minus'] = False
-    
     # 生成雷达图
     plt.figure(figsize=(5, 4))
     
@@ -155,13 +151,13 @@ def create_radar_chart(scores):
     
     # 绘制雷达图
     ax = plt.subplot(111, polar=True)
-    ax.plot(angles, scores_circle, 'o-', linewidth=2, label='预测分值')
+    ax.plot(angles, scores_circle, 'o-', linewidth=2, label='Predicted Score')
     ax.fill(angles, scores_circle, alpha=0.25)
     
     # 设置标签
     ax.set_thetagrids(np.degrees(angles[:-1]), PXI_DIMENSIONS, fontsize=8)
     ax.set_ylim(0, 10)
-    ax.set_title('玩家体验维度评分', size=10, y=1.1)
+    ax.set_title('Player Experience Dimensions', size=10, y=1.1)
     ax.legend(loc='upper right', bbox_to_anchor=(0.1, 0.1), fontsize=7)
     
     return plt
