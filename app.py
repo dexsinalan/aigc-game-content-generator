@@ -21,7 +21,7 @@ from utils.level_generator import (
 )
 from utils.vgdl_generator import (
     generate_vgdl, check_vgdl_logic, display_academic_background as display_vgdl_academic_background,
-    display_vgdl_template
+    display_vgdl_template, test_vgdl_code
 )
 
 # 加载环境变量
@@ -1397,14 +1397,23 @@ elif option == "VGDL生成器":
                 st.code(st.session_state.generated_vgdl, language="plaintext")
                 
                 # 逻辑检查按钮
-                if st.button("🔍 逻辑检查"):
-                    issues = check_vgdl_logic(st.session_state.generated_vgdl)
-                    if issues:
-                        st.error("❌ 发现以下问题：")
-                        for issue in issues:
-                            st.write(f"- {issue}")
-                    else:
-                        st.success("✅ 代码逻辑检查通过！")
+                col1, col2 = st.columns(2)
+                with col1:
+                    if st.button("🔍 逻辑检查"):
+                        issues = check_vgdl_logic(st.session_state.generated_vgdl)
+                        if issues:
+                            st.error("❌ 发现以下问题：")
+                            for issue in issues:
+                                st.write(f"- {issue}")
+                        else:
+                            st.success("✅ 代码逻辑检查通过！")
+                with col2:
+                    if st.button("🎮 测试代码"):
+                        success, message = test_vgdl_code(st.session_state.generated_vgdl)
+                        if success:
+                            st.success(message)
+                        else:
+                            st.warning(message)
                 
                 # 显示耗时和Token
                 if 'vgdl_elapsed_time' in st.session_state and 'vgdl_tokens' in st.session_state:

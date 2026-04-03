@@ -24,7 +24,7 @@ ACADEMIC_BACKGROUND = """
 4. **查看生成结果**：右侧会显示生成的VGDL代码，可以直接复制或下载
 5. **逻辑检查**：点击「逻辑检查」按钮，系统会检查生成的代码是否包含所有必要的组件
 6. **下载使用**：点击「下载VGDL文件」按钮，将代码保存为 .vgdl 文件
-7. **在学术环境中使用**：
+7. **环境中使用**：
    - 安装 py-vgdl 库：`pip install py-vgdl`
    - 使用 VGDLParser 加载生成的文件
    - 运行极简游戏窗口进行测试
@@ -156,3 +156,34 @@ def display_vgdl_template():
     """显示VGDL语法模板"""
     with st.expander("📝 VGDL语法模板"):
         st.code(VGDL_TEMPLATE, language="plaintext")
+
+
+def test_vgdl_code(vgdl_code):
+    """测试VGDL代码"""
+    try:
+        # 检查是否安装了py-vgdl
+        import importlib
+        vgdl = importlib.import_module('pyvgdl')
+        
+        # 保存VGDL代码到临时文件
+        import tempfile
+        import os
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.vgdl', delete=False) as f:
+            f.write(vgdl_code)
+            temp_file = f.name
+        
+        # 尝试解析VGDL代码
+        from pyvgdl.parser import VGDLParser
+        game = VGDLParser().parseGame(temp_file)
+        
+        # 清理临时文件
+        os.unlink(temp_file)
+        
+        return True, "✅ VGDL代码解析成功！代码格式正确。"
+        
+    except ImportError:
+        return False, "⚠️ py-vgdl库未安装。请在本地环境中运行：`pip install py-vgdl` 来测试VGDL代码。"
+    except Exception as e:
+        return False, f"❌ 解析失败：{str(e)}"
+
