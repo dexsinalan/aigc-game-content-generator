@@ -1419,6 +1419,10 @@ elif option == "VGDL生成器":
                 if st.button("🚀 启动游戏白模 (Live Play)"):
                     if 'generated_pygame' in st.session_state and st.session_state.generated_pygame:
                         try:
+                            # 检查pygame是否安装
+                            import importlib
+                            importlib.import_module('pygame')
+                            
                             import subprocess
                             import os
                             import tempfile
@@ -1432,6 +1436,8 @@ elif option == "VGDL生成器":
                             subprocess.Popen(["python", temp_file])
                             st.success("游戏视窗已启动！请切换至新视窗进行游玩。")
                             
+                        except ImportError:
+                            st.warning("⚠️ pygame库未安装。请在本地环境中运行：`pip install pygame` 来启动游戏白模。")
                         except Exception as e:
                             st.error(f"启动游戏失败：{str(e)}")
                     else:
