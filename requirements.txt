@@ -5,3 +5,5 @@ pandas
 openpyxl
 dashscope
 websocket-client
+matplotlib
+numpy
