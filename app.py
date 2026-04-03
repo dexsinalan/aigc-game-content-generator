@@ -1436,7 +1436,12 @@ elif option == "VGDL生成器":
                         file_name="game_prototype.py",
                         mime="text/x-python"
                     )
-                    st.caption("注：下载后在本地安装 `pip install pygame` 即可运行。")
+                    st.caption("使用说明：")
+                    st.caption("1. 在本地安装 pygame：`pip install pygame`")
+                    st.caption("2. 下载 game_prototype.py 文件到本地")
+                    st.caption("3. 在命令行中运行：`python game_prototype.py`")
+                    st.caption("4. 使用方向键控制玩家（蓝色方块）")
+                    st.caption("5. 与敌人（红色方块）战斗，收集目标（绿色/黄色方块）")
                 
                 # 显示耗时和Token
                 if 'vgdl_elapsed_time' in st.session_state and 'vgdl_tokens' in st.session_state:
