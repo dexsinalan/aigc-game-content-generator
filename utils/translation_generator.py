@@ -34,9 +34,35 @@ SUPPORTED_LANGUAGES = {
 # 语言代码到语言名称的映射
 LANGUAGE_CODES = {v: k for k, v in SUPPORTED_LANGUAGES.items()}
 
+# 语言名称映射：中文 -> 英文
 def get_translation_prompt(text, target_language):
     """获取翻译提示词，包含游戏相关的偏向"""
-    return f"""请将以下游戏相关文本翻译成{target_language}：
+    # 语言名称映射：中文 -> 英文
+    language_map = {
+        "中文": "Chinese",
+        "英文": "English",
+        "日文": "Japanese",
+        "韩文": "Korean",
+        "法文": "French",
+        "德文": "German",
+        "西班牙文": "Spanish",
+        "葡萄牙文": "Portuguese",
+        "意大利文": "Italian",
+        "俄文": "Russian",
+        "阿拉伯文": "Arabic",
+        "印地文": "Hindi",
+        "越南文": "Vietnamese",
+        "泰文": "Thai",
+        "印尼文": "Indonesian",
+        "马来文": "Malay",
+        "土耳其文": "Turkish",
+        "波兰文": "Polish"
+    }
+    
+    # 使用英文语言名称
+    en_language = language_map.get(target_language, target_language)
+    
+    return f"""请将以下游戏相关文本翻译成{en_language}：
 {text}
 
 要求：
