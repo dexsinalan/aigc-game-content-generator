@@ -1415,6 +1415,28 @@ elif option == "VGDL生成器":
                         else:
                             st.warning(message)
                 
+                # 启动游戏白模按钮
+                if st.button("🚀 启动游戏白模 (Live Play)"):
+                    if 'generated_pygame' in st.session_state and st.session_state.generated_pygame:
+                        try:
+                            import subprocess
+                            import os
+                            import tempfile
+                            
+                            # 将Pygame代码写入临时文件
+                            with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf-8') as f:
+                                f.write(st.session_state.generated_pygame)
+                                temp_file = f.name
+                            
+                            # 使用subprocess启动一个独立的游戏窗口
+                            subprocess.Popen(["python", temp_file])
+                            st.success("游戏视窗已启动！请切换至新视窗进行游玩。")
+                            
+                        except Exception as e:
+                            st.error(f"启动游戏失败：{str(e)}")
+                    else:
+                        st.warning("请先生成VGDL代码和Pygame脚本")
+                
                 # 显示耗时和Token
                 if 'vgdl_elapsed_time' in st.session_state and 'vgdl_tokens' in st.session_state:
                     st.info(f"本次耗时：{st.session_state.vgdl_elapsed_time:.2f}秒 | 消耗Token：{st.session_state.vgdl_tokens}")
@@ -1426,7 +1448,7 @@ elif option == "VGDL生成器":
                 st.error("请输入游戏描述")
             else:
                 with st.spinner("生成VGDL代码中..."):
-                    vgdl_code, elapsed_time, tokens, error = generate_vgdl(
+                    vgdl_code, pygame_code, elapsed_time, tokens, error = generate_vgdl(
                         game_description, st.session_state.selected_model
                     )
                     
@@ -1435,9 +1457,10 @@ elif option == "VGDL生成器":
                     else:
                         # 保存到session state
                         st.session_state.generated_vgdl = vgdl_code
+                        st.session_state.generated_pygame = pygame_code
                         st.session_state.vgdl_elapsed_time = elapsed_time
                         st.session_state.vgdl_tokens = tokens
-                        st.success("VGDL代码生成成功！")
+                        st.success("VGDL代码和Pygame脚本生成成功！")
                         
                         # 重新渲染页面以显示更新后的内容
                         st.rerun()

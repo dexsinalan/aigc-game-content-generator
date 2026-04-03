@@ -8,3 +8,4 @@ websocket-client
 matplotlib
 numpy
 plotly
+pygame

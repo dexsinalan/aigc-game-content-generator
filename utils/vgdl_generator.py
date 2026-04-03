@@ -72,11 +72,12 @@ VGDL_PATTERNS = {
 
 def generate_vgdl_prompt(game_description):
     """构建VGDL生成提示词"""
-    prompt = f"""你现在是一个 VGDL (视频游戏描述语言) 专家。请根据用户描述，仅输出符合 VGDL 规范的代码块。
+    prompt = f"""你现在是一个游戏架构师。请根据用户描述，首先生成符合 Perez-Liebana (2019) 标准的 VGDL 代码，然后将该 VGDL 逻辑转译为一段完整的、可运行的 Pygame 脚本。
 
 用户描述：
 {game_description}
 
+第一部分：VGDL 代码
 VGDL 语法要求：
 1. 必须包含以下四个核心部分：
    - SpriteSet (物件定义层)
@@ -96,30 +97,64 @@ VGDL 语法要求：
    - 当用户提到「得分」，使用 scoreChange
    - 当用户提到「胜利条件」，在 TerminationSet 中定义
 
-4. 输出要求：
-   - 仅输出 VGDL 代码，不要有其他文字
-   - 确保代码格式正确，符合 VGDL 语法规范
-   - 代码要完整，包含所有必要的部分
+第二部分：Pygame 脚本
+Pygame 脚本要求：
+1. 完整的可运行脚本，包含所有必要的导入和初始化
+2. 基本的方块渲染（白模），遵循以下视觉标准：
+   - 蓝色方块：代表玩家 (Avatar)
+   - 红色方块：代表敌人 (Aliens/Enemies)
+   - 绿色/黄色方块：代表目标或金币 (Goals/Collectibles)
+   - 黑色/灰色方块：代表墙壁 (Walls/Obstacles)
+3. 键盘控制逻辑
+4. 碰撞检测和游戏规则逻辑
+5. 基本的游戏循环和渲染
+
+输出格式：
+```vgdl
+[VGDL代码]
+```
+
+```python
+[Pygame脚本代码]
+```
+
+请确保：
+- VGDL 代码符合语法规范
+- Pygame 代码可以直接运行
+- 输出格式严格按照上述要求
+- 不要有其他额外的文字
 """
     return prompt
 
 
 def generate_vgdl(game_description, model):
-    """生成VGDL代码"""
+    """生成VGDL代码和Pygame脚本"""
     try:
         prompt = generate_vgdl_prompt(game_description)
         result, elapsed_time, tokens = generate_text_for_model(prompt, model)
         
         if not result:
-            return None, elapsed_time, tokens, "AI调用失败"
+            return None, None, elapsed_time, tokens, "AI调用失败"
         
-        # 清理结果，确保只包含VGDL代码
-        vgdl_code = result.strip()
+        # 解析结果，提取VGDL代码和Pygame脚本
+        import re
         
-        return vgdl_code, elapsed_time, tokens, None
+        # 提取VGDL代码
+        vgdl_match = re.search(r'```vgdl\n(.*?)```', result, re.DOTALL)
+        if not vgdl_match:
+            return None, None, elapsed_time, tokens, "未能提取VGDL代码"
+        vgdl_code = vgdl_match.group(1).strip()
+        
+        # 提取Pygame脚本
+        pygame_match = re.search(r'```python\n(.*?)```', result, re.DOTALL)
+        if not pygame_match:
+            return None, None, elapsed_time, tokens, "未能提取Pygame脚本"
+        pygame_code = pygame_match.group(1).strip()
+        
+        return vgdl_code, pygame_code, elapsed_time, tokens, None
         
     except Exception as e:
-        return None, 0, 0, f"生成失败：{str(e)}"
+        return None, None, 0, 0, f"生成失败：{str(e)}"
 
 
 def check_vgdl_logic(vgdl_code):
