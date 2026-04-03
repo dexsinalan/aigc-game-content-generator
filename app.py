@@ -1419,23 +1419,14 @@ elif option == "VGDL生成器":
                 st.code(st.session_state.generated_vgdl, language="plaintext")
                 
                 # 逻辑检查按钮
-                col1, col2 = st.columns(2)
-                with col1:
-                    if st.button("🔍 逻辑检查"):
-                        issues = check_vgdl_logic(st.session_state.generated_vgdl)
-                        if issues:
-                            st.error("❌ 发现以下问题：")
-                            for issue in issues:
-                                st.write(f"- {issue}")
-                        else:
-                            st.success("✅ 代码逻辑检查通过！")
-                with col2:
-                    if st.button("🎮 测试代码"):
-                        success, message = test_vgdl_code(st.session_state.generated_vgdl)
-                        if success:
-                            st.success(message)
-                        else:
-                            st.warning(message)
+                if st.button("🔍 逻辑检查"):
+                    issues = check_vgdl_logic(st.session_state.generated_vgdl)
+                    if issues:
+                        st.error("❌ 发现以下问题：")
+                        for issue in issues:
+                            st.write(f"- {issue}")
+                    else:
+                        st.success("✅ 代码逻辑检查通过！")
                 
                 # 下载Pygame脚本按钮
                 if 'generated_pygame' in st.session_state and st.session_state.generated_pygame:
@@ -1446,34 +1437,6 @@ elif option == "VGDL生成器":
                         mime="text/x-python"
                     )
                     st.caption("注：下载后在本地安装 `pip install pygame` 即可运行。")
-                
-                # 启动游戏白模按钮
-                if st.button("🚀 启动游戏白模 (Live Play)"):
-                    if 'generated_pygame' in st.session_state and st.session_state.generated_pygame:
-                        try:
-                            # 检查pygame是否安装
-                            import importlib
-                            importlib.import_module('pygame')
-                            
-                            import subprocess
-                            import os
-                            import tempfile
-                            
-                            # 将Pygame代码写入临时文件
-                            with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf-8') as f:
-                                f.write(st.session_state.generated_pygame)
-                                temp_file = f.name
-                            
-                            # 使用subprocess启动一个独立的游戏窗口
-                            subprocess.Popen(["python", temp_file])
-                            st.success("游戏视窗已启动！请切换至新视窗进行游玩。")
-                            
-                        except ImportError:
-                            st.warning("⚠️ pygame库未安装。请在本地环境中运行：`pip install pygame` 来启动游戏白模。")
-                        except Exception as e:
-                            st.error(f"启动游戏失败：{str(e)}")
-                    else:
-                        st.warning("请先生成VGDL代码和Pygame脚本")
                 
                 # 显示耗时和Token
                 if 'vgdl_elapsed_time' in st.session_state and 'vgdl_tokens' in st.session_state:
