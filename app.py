@@ -1238,7 +1238,7 @@ elif option == "关卡原型生成器":
         with col2:
             level_height = st.number_input("地图高度", min_value=5, max_value=20, value=10)
         with col3:
-            level_shape = st.selectbox("地图形状", ["矩形", "不规则"], index=0, key="level_shape")
+            level_shape = st.selectbox("地图形状", ["矩形", "不规则", "圆形", "L形", "十字形", "U形"], index=0, key="level_shape")
         
         # 关卡描述输入
         level_description = st.text_area(
@@ -1248,7 +1248,22 @@ elif option == "关卡原型生成器":
         )
         
         # 生成关卡按钮
-        if st.button("🎲 生成关卡", type="primary"):
+        col1, col2 = st.columns([2, 1])
+        with col1:
+            generate_btn = st.button("🎲 生成关卡", type="primary")
+        with col2:
+            if 'generated_ascii_map' in st.session_state and st.session_state.generated_ascii_map:
+                # 下载ASCII为txt文件
+                txt_content = st.session_state.generated_ascii_map
+                st.download_button(
+                    label="📥 下载ASCII地图",
+                    data=txt_content,
+                    file_name="level_map.txt",
+                    mime="text/plain",
+                    key="download_ascii"
+                )
+        
+        if generate_btn:
             if not level_description:
                 st.error("请输入关卡描述")
             else:
@@ -1261,8 +1276,9 @@ elif option == "关卡原型生成器":
                         st.error(error)
                     else:
                         # 清除之前的内容
-                        if 'level_story' in st.session_state:
-                            del st.session_state.level_story
+                        for key in ['level_story', 'generated_ascii_map', 'generated_json_map', 'level_desc']:
+                            if key in st.session_state:
+                                del st.session_state[key]
                         
                         # 保存到session state
                         st.session_state.generated_ascii_map = ascii_map
