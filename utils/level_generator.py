@@ -45,7 +45,18 @@ ACADEMIC_BACKGROUND = """
 
 def generate_level_prompt(description, width=10, height=10, shape="矩形"):
     """构建关卡生成提示词"""
-    shape_requirement = "" if shape == "矩形" else "6. 地图形状应该是不规则的，不要是完美的矩形"
+    # 根据形状添加特定要求
+    shape_requirement = ""
+    if shape == "不规则":
+        shape_requirement = "6. 地图形状应该是不规则的，不要是完美的矩形"
+    elif shape == "圆形":
+        shape_requirement = "6. 地图形状应该接近圆形，中心区域较大，边缘逐渐收缩"
+    elif shape == "L形":
+        shape_requirement = "6. 地图形状应该是L形，有明显的拐角"
+    elif shape == "十字形":
+        shape_requirement = "6. 地图形状应该是十字形，有主要通道和分支"
+    elif shape == "U形":
+        shape_requirement = "6. 地图形状应该是U形，有明显的凹陷区域"
     
     prompt = f"""请根据以下描述生成一个 {width}x{height} 的游戏关卡地图。
 
@@ -67,12 +78,13 @@ S = 商店
 B = Boss
 
 要求：
-1. 生成一个 {width}x{height} 的 ASCII 地图
+1. 生成一个 {width}x{height} 的 ASCII 地图，确保地图宽度为 {width} 字符，高度为 {height} 行
 2. 必须包含玩家起点(P)和出口(E)
 3. 确保地图有可行路径从P到E
 4. 合理分布怪物、陷阱、宝箱等元素
 5. 地图应该有挑战性但不过于困难
 {shape_requirement}
+6. 每次生成不同的地图布局，不要重复之前的设计
 
 请按照以下JSON格式输出结果：
 {{
