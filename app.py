@@ -21,7 +21,7 @@ from utils.level_generator import (
 )
 from utils.vgdl_generator import (
     generate_vgdl, check_vgdl_logic, display_academic_background as display_vgdl_academic_background,
-    display_vgdl_template, test_vgdl_code
+    display_vgdl_template, test_vgdl_code, check_pygame_syntax
 )
 
 # 加载环境变量
@@ -1430,18 +1430,40 @@ elif option == "VGDL生成器":
                 
                 # 下载Pygame脚本按钮
                 if 'generated_pygame' in st.session_state and st.session_state.generated_pygame:
+                    # 显示Pygame语法检查结果
+                    if 'vgdl_error' in st.session_state and st.session_state.vgdl_error:
+                        if "Pygame脚本语法警告" in st.session_state.vgdl_error:
+                            st.warning(st.session_state.vgdl_error)
+                        else:
+                            st.error(st.session_state.vgdl_error)
+                    
                     st.download_button(
                         label="💾 下载 Pygame 游戏文件",
                         data=st.session_state.generated_pygame,
                         file_name="game_prototype.py",
                         mime="text/x-python"
                     )
-                    st.caption("使用说明：")
-                    st.caption("1. 在本地安装 pygame：`pip install pygame`")
-                    st.caption("2. 下载 game_prototype.py 文件到本地")
-                    st.caption("3. 在命令行中运行：`python game_prototype.py`")
-                    st.caption("4. 使用方向键控制玩家（蓝色方块）")
-                    st.caption("5. 与敌人（红色方块）战斗，收集目标（绿色/黄色方块）")
+                    
+                    st.markdown("### 🎮 游戏运行指南")
+                    st.info("""
+                    **步骤说明：**
+                    1. **安装依赖**：在命令行中运行 `pip install pygame`
+                    2. **下载文件**：点击上方按钮下载 `game_prototype.py`
+                    3. **运行游戏**：在命令行中运行 `python game_prototype.py`
+                    4. **游戏控制**：使用方向键控制玩家角色
+                    5. **游戏目标**：根据VGDL代码中的规则完成游戏
+                    
+                    **游戏元素说明：**
+                    - 🔵 蓝色方块：玩家角色
+                    - 🔴 红色方块：敌人/障碍物  
+                    - 🟢 绿色方块：可收集物品/目标
+                    - ⬛ 黑色方块：墙壁/边界
+                    
+                    **注意事项：**
+                    - 如果游戏无法运行，请检查Python和Pygame是否正确安装
+                    - 确保下载的文件扩展名为 `.py`
+                    - 游戏窗口大小为 800x600 像素
+                    """)
                 
                 # 显示耗时和Token
                 if 'vgdl_elapsed_time' in st.session_state and 'vgdl_tokens' in st.session_state:
@@ -1460,12 +1482,15 @@ elif option == "VGDL生成器":
                     
                     if error:
                         st.error(error)
+                        # 保存错误信息到session state
+                        st.session_state.vgdl_error = error
                     else:
                         # 保存到session state
                         st.session_state.generated_vgdl = vgdl_code
                         st.session_state.generated_pygame = pygame_code
                         st.session_state.vgdl_elapsed_time = elapsed_time
                         st.session_state.vgdl_tokens = tokens
+                        st.session_state.vgdl_error = None  # 清除之前的错误
                         st.success("VGDL代码和Pygame脚本生成成功！")
                         
                         # 重新渲染页面以显示更新后的内容
@@ -1571,5 +1596,3 @@ st.markdown("""
 
 <a href="#" class="back-to-top"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" /></svg></a>
 """, unsafe_allow_html=True)
-
-
