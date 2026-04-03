@@ -1258,6 +1258,10 @@ elif option == "关卡原型生成器":
                     if error:
                         st.error(error)
                     else:
+                        # 清除之前的内容
+                        if 'level_story' in st.session_state:
+                            del st.session_state.level_story
+                        
                         # 保存到session state
                         st.session_state.generated_ascii_map = ascii_map
                         st.session_state.generated_json_map = json_map
