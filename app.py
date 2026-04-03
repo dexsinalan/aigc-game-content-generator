@@ -19,6 +19,10 @@ from utils.level_generator import (
     generate_level, generate_level_story, validate_ascii_map, 
     parse_ascii_map, display_level_elements_reference, display_academic_background as display_level_academic_background
 )
+from utils.vgdl_generator import (
+    generate_vgdl, check_vgdl_logic, display_academic_background as display_vgdl_academic_background,
+    display_vgdl_template
+)
 
 # 加载环境变量
 load_dotenv()
@@ -151,6 +155,7 @@ data_gen_btn = st.sidebar.button("📊 游戏数据配置", use_container_width=
 translation_btn = st.sidebar.button("🌍 游戏多语言本地化", use_container_width=True, key="btn_translation")
 player_exp_btn = st.sidebar.button("🎮 玩家体验预测器", use_container_width=True, key="btn_player_exp")
 level_gen_btn = st.sidebar.button("🏗️ 关卡原型生成器", use_container_width=True, key="btn_level_gen")
+vgdl_gen_btn = st.sidebar.button("🎮 VGDL生成器", use_container_width=True, key="btn_vgdl_gen")
 thanks_btn = st.sidebar.button("🙏 致谢及免责声明", use_container_width=True, key="btn_thanks")
 
 
@@ -173,6 +178,8 @@ elif player_exp_btn:
     st.session_state.current_page = "玩家体验预测器"
 elif level_gen_btn:
     st.session_state.current_page = "关卡原型生成器"
+elif vgdl_gen_btn:
+    st.session_state.current_page = "VGDL生成器"
 elif thanks_btn:
     st.session_state.current_page = "致谢"
 
@@ -181,7 +188,7 @@ elif thanks_btn:
 option = st.session_state.current_page
 
 # ==================== 模型选择 ====================
-if option in ["文本生成", "图像生成", "数据生成", "多语言在地化", "玩家体验预测器", "关卡原型生成器"]:
+if option in ["文本生成", "图像生成", "数据生成", "多语言在地化", "玩家体验预测器", "关卡原型生成器", "VGDL生成器"]:
     st.sidebar.divider()
     st.sidebar.subheader("🤖 模型选择")
     
@@ -1345,6 +1352,84 @@ elif option == "关卡原型生成器":
                 
                 # 显示耗时和Token
                 st.info(f"本次耗时：{elapsed_time:.2f}秒 | 消耗Token：{tokens}")
+
+# ==================== VGDL生成器 ====================
+
+elif option == "VGDL生成器":
+    st.header("🎮 VGDL生成器 (Video Game Description Language)")
+    st.write("将自然语言游戏描述转换为 VGDL 代码，实现游戏逻辑的数字化表达。")
+    
+    # 学术背景介绍
+    display_vgdl_academic_background()
+    display_vgdl_template()
+    
+    # 检查API是否配置
+    if not check_api_configured(st.session_state.selected_model):
+        st.warning(f"⚠️ {st.session_state.selected_model} 的API密钥未配置，请在侧边栏选择其他模型或前往「API设置」页面配置")
+    else:
+        # 双窗口布局
+        col1, col2 = st.columns(2, gap="large")
+        
+        with col1:
+            st.markdown("### 📝 自然语言描述")
+            game_description = st.text_area(
+                "输入游戏描述",
+                placeholder="例如：一个射击游戏，玩家控制飞船发射子弹攻击外星飞船，外星飞船会向下移动，玩家被击中则游戏结束，消灭所有外星飞船则获胜...",
+                height=300
+            )
+            
+            col1_1, col1_2 = st.columns(2)
+            with col1_1:
+                generate_vgdl_btn = st.button("🚀 生成VGDL代码", type="primary")
+            with col1_2:
+                if 'generated_vgdl' in st.session_state and st.session_state.generated_vgdl:
+                    st.download_button(
+                        label="📥 下载VGDL文件",
+                        data=st.session_state.generated_vgdl,
+                        file_name="game.vgdl",
+                        mime="text/plain",
+                        key="download_vgdl"
+                    )
+        
+        with col2:
+            st.markdown("### 🖥️ VGDL代码")
+            if 'generated_vgdl' in st.session_state and st.session_state.generated_vgdl:
+                st.code(st.session_state.generated_vgdl, language="plaintext")
+                
+                # 逻辑检查按钮
+                if st.button("🔍 逻辑检查"):
+                    issues = check_vgdl_logic(st.session_state.generated_vgdl)
+                    if issues:
+                        st.error("❌ 发现以下问题：")
+                        for issue in issues:
+                            st.write(f"- {issue}")
+                    else:
+                        st.success("✅ 代码逻辑检查通过！")
+            else:
+                st.info("生成的VGDL代码将显示在这里")
+        
+        if generate_vgdl_btn:
+            if not game_description:
+                st.error("请输入游戏描述")
+            else:
+                with st.spinner("生成VGDL代码中..."):
+                    vgdl_code, elapsed_time, tokens, error = generate_vgdl(
+                        game_description, st.session_state.selected_model
+                    )
+                    
+                    if error:
+                        st.error(error)
+                    else:
+                        # 保存到session state
+                        st.session_state.generated_vgdl = vgdl_code
+                        st.success("VGDL代码生成成功！")
+                        
+                        # 显示结果
+                        st.markdown("### 🖥️ 生成的VGDL代码")
+                        st.code(vgdl_code, language="plaintext")
+                        
+                        # 显示耗时和Token
+                        st.info(f"本次耗时：{elapsed_time:.2f}秒 | 消耗Token：{tokens}")
 
 # ==================== 致谢页面 ====================
 
