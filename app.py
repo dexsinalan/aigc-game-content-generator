@@ -1138,18 +1138,19 @@ elif option == "多语言在地化":
                 
                 # 按行写入数据
                 lines = text.split('\n')
-                for line in lines:
+                for i, line in enumerate(lines):
                     if line.strip():
                         row = [line]
                         for lang in target_languages:
                             if lang in st.session_state.translations:
                                 # 找到对应行的翻译
                                 trans_lines = st.session_state.translations[lang].split('\n')
-                                # 简单匹配：假设翻译结果的行数与原文相同
-                                if len(trans_lines) > len(row) - 1:
-                                    row.append(trans_lines[len(row) - 1])
+                                # 简单匹配：使用索引i来获取对应行的翻译
+                                if i < len(trans_lines):
+                                    row.append(trans_lines[i])
                                 else:
-                                    row.append('')
+                                    # 如果翻译结果行数不足，使用完整翻译
+                                    row.append(st.session_state.translations[lang])
                             else:
                                 row.append('')
                         writer.writerow(row)
@@ -1213,18 +1214,19 @@ elif option == "多语言在地化":
                             
                             # 按行写入数据
                             lines = text.split('\n')
-                            for line in lines:
+                            for i, line in enumerate(lines):
                                 if line.strip():
                                     row = [line]
                                     for lang in target_languages:
                                         if lang in translations:
                                             # 找到对应行的翻译
                                             trans_lines = translations[lang].split('\n')
-                                            # 简单匹配：假设翻译结果的行数与原文相同
-                                            if len(trans_lines) > len(row) - 1:
-                                                row.append(trans_lines[len(row) - 1])
+                                            # 简单匹配：使用索引i来获取对应行的翻译
+                                            if i < len(trans_lines):
+                                                row.append(trans_lines[i])
                                             else:
-                                                row.append('')
+                                                # 如果翻译结果行数不足，使用完整翻译
+                                                row.append(translations[lang])
                                         else:
                                             row.append('')
                                     writer.writerow(row)
