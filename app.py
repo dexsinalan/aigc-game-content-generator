@@ -776,7 +776,7 @@ elif option == "图像生成":
         if 'generated_image' in st.session_state and st.session_state.generated_image:
             st.success("生成成功！")
             st.markdown("### 生成结果")
-            st.image(st.session_state.generated_image, use_container_width=True, clamp=True, caption="生成的图像")
+            st.image(st.session_state.generated_image, width=600, clamp=True, caption="生成的图像")
         
         if save_image_btn:
             if 'generated_image' in st.session_state and st.session_state.generated_image:
