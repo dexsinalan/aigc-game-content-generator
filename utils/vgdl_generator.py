@@ -287,8 +287,9 @@ def generate_vgdl(game_description, model):
         
         return vgdl_code, pygame_code, elapsed_time, tokens, None
         
-    except Exception as e:
-        return None, None, 0, 0, f"生成失败：{str(e)}"
+    except Exception as ex:
+        error_msg = f"生成失败：{str(ex)}"
+        return None, None, 0, 0, error_msg
 
 
 def check_vgdl_logic(vgdl_code):
