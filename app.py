@@ -7,11 +7,14 @@ import base64
 import time
 from io import BytesIO
 from dotenv import load_dotenv
+import matplotlib.pyplot as plt
+import numpy as np
 from utils.text_generator import generate_text_for_model
 from utils.image_generator import generate_image_for_model
 from utils.data_generator import generate_json_data, generate_xlsx_data, generate_mindmap_data
 from utils.translation_generator import translate_text_for_model, SUPPORTED_LANGUAGES
 from utils.prompt_templates import TEXT_TEMPLATES, IMAGE_TEMPLATES, DATA_TEMPLATES
+from utils.PXI_generator import analyze_pxi_dimensions, display_pxi_results, display_academic_background
 
 # 加载环境变量
 load_dotenv()
@@ -142,6 +145,7 @@ text_gen_btn = st.sidebar.button("📝 游戏文本设计", use_container_width=
 image_gen_btn = st.sidebar.button("🖼️ 游戏美术资源", use_container_width=True, key="btn_image_gen")
 data_gen_btn = st.sidebar.button("📊 游戏数据配置", use_container_width=True, key="btn_data_gen")
 translation_btn = st.sidebar.button("🌍 游戏多语言本地化", use_container_width=True, key="btn_translation")
+player_exp_btn = st.sidebar.button("🎮 玩家体验预测器", use_container_width=True, key="btn_player_exp")
 thanks_btn = st.sidebar.button("🙏 致谢及免责声明", use_container_width=True, key="btn_thanks")
 
 
@@ -160,6 +164,8 @@ elif data_gen_btn:
     st.session_state.current_page = "数据生成"
 elif translation_btn:
     st.session_state.current_page = "多语言在地化"
+elif player_exp_btn:
+    st.session_state.current_page = "玩家体验预测器"
 elif thanks_btn:
     st.session_state.current_page = "致谢"
 
@@ -168,7 +174,7 @@ elif thanks_btn:
 option = st.session_state.current_page
 
 # ==================== 模型选择 ====================
-if option in ["文本生成", "图像生成", "数据生成", "多语言在地化"]:
+if option in ["文本生成", "图像生成", "数据生成", "多语言在地化", "玩家体验预测器"]:
     st.sidebar.divider()
     st.sidebar.subheader("🤖 模型选择")
     
@@ -478,8 +484,105 @@ elif option == "文本生成":
         # 提示词模板库
         st.subheader("🎨 提示词模板库")
         template_category = st.selectbox("选择模板类型", list(TEXT_TEMPLATES.keys()))
+        
+        # 根据模板类型显示不同的参数输入
+        template_params = {}
+        if template_category == "游戏角色设计":
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                template_params["character_class"] = st.text_input("职业", "战士", label_visibility="collapsed", key="tc_char_class")
+            with col2:
+                template_params["level_range"] = st.text_input("等级范围", "1-100", label_visibility="collapsed", key="tc_level_range")
+            with col3:
+                template_params["art_style"] = st.text_input("美术风格", "写实", label_visibility="collapsed", key="tc_art_style")
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                template_params["color_scheme"] = st.text_input("配色方案", "暗色调", label_visibility="collapsed", key="tc_color")
+            with col2:
+                template_params["character_strength"] = st.text_input("角色优势", "高爆发", label_visibility="collapsed", key="tc_strength")
+            with col3:
+                template_params["game_world"] = st.text_input("世界观", "奇幻", label_visibility="collapsed", key="tc_world")
+        elif template_category == "游戏剧情对话":
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                template_params["time_period"] = st.text_input("时间", "黄昏", label_visibility="collapsed", key="td_time")
+            with col2:
+                template_params["location"] = st.text_input("地点", "城堡大厅", label_visibility="collapsed", key="td_location")
+            with col3:
+                template_params["atmosphere"] = st.text_input("氛围", "紧张", label_visibility="collapsed", key="td_atmosphere")
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                template_params["character_count"] = st.text_input("角色数量", "2-4", label_visibility="collapsed", key="td_char_count")
+            with col2:
+                template_params["character_relationships"] = st.text_input("角色关系", "敌对", label_visibility="collapsed", key="td_relationships")
+            with col3:
+                template_params["branch_count"] = st.text_input("分支数量", "2", label_visibility="collapsed", key="td_branches")
+        elif template_category == "游戏任务设计":
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                template_params["quest_type"] = st.text_input("任务类型", "主线", label_visibility="collapsed", key="tq_type")
+            with col2:
+                template_params["difficulty_level"] = st.text_input("难度", "3", label_visibility="collapsed", key="tq_difficulty")
+            with col3:
+                template_params["level_requirement"] = st.text_input("等级要求", "20-30级", label_visibility="collapsed", key="tq_level")
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                template_params["quest_background"] = st.text_input("任务背景", "拯救村庄", label_visibility="collapsed", key="tq_background")
+            with col2:
+                template_params["npc_info"] = st.text_input("NPC", "村长", label_visibility="collapsed", key="tq_npc")
+            with col3:
+                template_params["item_rewards"] = st.text_input("物品奖励", "装备+材料", label_visibility="collapsed", key="tq_items")
+        elif template_category == "游戏技能系统":
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                template_params["skill_type"] = st.text_input("技能类型", "主动", label_visibility="collapsed", key="ts_type")
+            with col2:
+                template_params["skill_category"] = st.text_input("技能分类", "魔法", label_visibility="collapsed", key="ts_category")
+            with col3:
+                template_params["skill_target"] = st.text_input("技能对象", "敌方", label_visibility="collapsed", key="ts_target")
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                template_params["base_damage"] = st.text_input("基础伤害", "500", label_visibility="collapsed", key="ts_damage")
+            with col2:
+                template_params["cooldown"] = st.text_input("冷却时间", "10秒", label_visibility="collapsed", key="ts_cooldown")
+            with col3:
+                template_params["main_effect"] = st.text_input("主要效果", "造成伤害", label_visibility="collapsed", key="ts_main")
+        elif template_category == "游戏世界观":
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                template_params["world_name"] = st.text_input("世界名称", "艾泽拉斯", label_visibility="collapsed", key="tw_name")
+            with col2:
+                template_params["world_setting"] = st.text_input("世界设定", "魔幻", label_visibility="collapsed", key="tw_setting")
+            with col3:
+                template_params["geographical_regions"] = st.text_input("地理区域", "东部王国", label_visibility="collapsed", key="tw_geo")
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                template_params["main_races"] = st.text_input("主要种族", "人类/兽人", label_visibility="collapsed", key="tw_races")
+            with col2:
+                template_params["main_factions"] = st.text_input("主要势力", "联盟/部落", label_visibility="collapsed", key="tw_factions")
+            with col3:
+                template_params["main_conflict"] = st.text_input("主要矛盾", "资源争夺", label_visibility="collapsed", key="tw_conflict")
+        elif template_category == "游戏物品装备":
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                template_params["item_category"] = st.text_input("物品分类", "装备", label_visibility="collapsed", key="ti_category")
+            with col2:
+                template_params["item_rarity"] = st.text_input("稀有度", "史诗", label_visibility="collapsed", key="ti_rarity")
+            with col3:
+                template_params["item_level_range"] = st.text_input("物品等级", "1-100", label_visibility="collapsed", key="ti_level")
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                template_params["equipment_slot"] = st.text_input("装备部位", "武器", label_visibility="collapsed", key="ti_slot")
+            with col2:
+                template_params["item_stats"] = st.text_input("物品属性", "攻击+100", label_visibility="collapsed", key="ti_stats")
+            with col3:
+                template_params["acquisition_method"] = st.text_input("获取途径", "副本掉落", label_visibility="collapsed", key="ti_acquisition")
+        
         if st.button("📋 应用模板"):
-            st.session_state.text_prompt = TEXT_TEMPLATES[template_category]
+            # 填充模板参数
+            template = TEXT_TEMPLATES[template_category]
+            filled_template = template.format(**template_params)
+            st.session_state.text_prompt = filled_template
         
         # 输入提示词
         prompt = st.text_area("提示词", value=st.session_state.get('text_prompt', ''), placeholder="例如：游戏角色描述、剧情对话、任务文本等", height=150)
@@ -551,26 +654,92 @@ elif option == "图像生成":
         
         # 根据模板类型显示不同的参数输入
         template_params = {}
-        if template_category == "游戏角色设计":
-            template_params["角色类型"] = st.text_input("角色类型", "战士")
-            template_params["风格"] = st.text_input("风格", "奇幻")
-            template_params["颜色风格"] = st.text_input("颜色风格", "暗色调")
-        elif template_category == "游戏场景设计":
-            template_params["场景类型"] = st.text_input("场景类型", "城堡")
-            template_params["风格"] = st.text_input("风格", "中世纪")
-            template_params["氛围"] = st.text_input("氛围", "神秘")
-        elif template_category == "游戏道具设计":
-            template_params["道具类型"] = st.text_input("道具类型", "武器")
-            template_params["风格"] = st.text_input("风格", "魔法")
-            template_params["用途"] = st.text_input("用途", "战斗")
-        elif template_category == "游戏UI元素":
-            template_params["元素类型"] = st.text_input("元素类型", "按钮")
-            template_params["风格"] = st.text_input("风格", "科幻")
-            template_params["功能"] = st.text_input("功能", "确认")
-        elif template_category == "游戏图标设计":
-            template_params["图标类型"] = st.text_input("图标类型", "技能")
-            template_params["风格"] = st.text_input("风格", "扁平化")
-            template_params["主题"] = st.text_input("主题", "火焰")
+        if template_category == "游戏角色原画":
+            template_params["additional_style"] = st.text_input("附加风格", "写实风格，光影效果丰富", label_visibility="collapsed", key="ic_additional_style")
+        elif template_category == "游戏场景概念":
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                template_params["style_type"] = st.text_input("风格类型", "奇幻风格", label_visibility="collapsed", key="ic_style_type")
+            with col2:
+                template_params["mood"] = st.text_input("氛围", "神秘", label_visibility="collapsed", key="ic_mood")
+            with col3:
+                template_params["time_of_day"] = st.text_input("时间", "黄昏", label_visibility="collapsed", key="ic_time")
+            col1, col2 = st.columns(2)
+            with col1:
+                template_params["weather"] = st.text_input("天气", "多云", label_visibility="collapsed", key="ic_weather")
+            with col2:
+                template_params["technical_specs"] = st.text_input("技术规格", "4K分辨率，超宽视角", label_visibility="collapsed", key="ic_tech_specs")
+        elif template_category == "游戏道具图标":
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                template_params["icon_type"] = st.text_input("图标类型", "武器", label_visibility="collapsed", key="ic_icon_type")
+            with col2:
+                template_params["rarity"] = st.text_input("稀有度", "传说", label_visibility="collapsed", key="ic_rarity")
+            with col3:
+                template_params["style"] = st.text_input("风格", "扁平化", label_visibility="collapsed", key="ic_style")
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                template_params["color_scheme"] = st.text_input("配色方案", "金色+红色", label_visibility="collapsed", key="ic_color_scheme")
+            with col2:
+                template_params["background"] = st.text_input("背景", "深色背景", label_visibility="collapsed", key="ic_background")
+            with col3:
+                template_params["specs"] = st.text_input("规格", "256x256像素", label_visibility="collapsed", key="ic_specs")
+        elif template_category == "游戏UI界面":
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                template_params["ui_type"] = st.text_input("界面类型", "主菜单", label_visibility="collapsed", key="ic_ui_type")
+            with col2:
+                template_params["ui_style"] = st.text_input("UI风格", "现代简约", label_visibility="collapsed", key="ic_ui_style")
+            with col3:
+                template_params["color_scheme"] = st.text_input("配色方案", "深色主题", label_visibility="collapsed", key="ic_ui_color")
+            col1, col2 = st.columns(2)
+            with col1:
+                template_params["typography"] = st.text_input("字体风格", "无衬线字体", label_visibility="collapsed", key="ic_typography")
+            with col2:
+                template_params["effects"] = st.text_input("特效", "悬停动画", label_visibility="collapsed", key="ic_effects")
+        elif template_category == "游戏特效动画":
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                template_params["skill_type"] = st.text_input("技能类型", "火球术", label_visibility="collapsed", key="ic_skill_type")
+            with col2:
+                template_params["effect_style"] = st.text_input("特效风格", "粒子爆炸", label_visibility="collapsed", key="ic_effect_style")
+            with col3:
+                template_params["color_palette"] = st.text_input("配色", "橙色+红色", label_visibility="collapsed", key="ic_color_palette")
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                template_params["intensity"] = st.text_input("强度", "高", label_visibility="collapsed", key="ic_intensity")
+            with col2:
+                template_params["particles"] = st.text_input("粒子效果", "火花+烟雾", label_visibility="collapsed", key="ic_particles")
+            with col3:
+                template_params["technical_format"] = st.text_input("技术格式", "序列帧+粒子系统", label_visibility="collapsed", key="ic_tech_format")
+        elif template_category == "游戏地图设计":
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                template_params["map_type"] = st.text_input("地图类型", "野外地图", label_visibility="collapsed", key="ic_map_type")
+            with col2:
+                template_params["map_style"] = st.text_input("地图风格", "手绘风格", label_visibility="collapsed", key="ic_map_style")
+            with col3:
+                template_params["grid_type"] = st.text_input("网格类型", "六边形", label_visibility="collapsed", key="ic_grid_type")
+            col1, col2 = st.columns(2)
+            with col1:
+                template_params["color_scheme"] = st.text_input("配色方案", "自然色调", label_visibility="collapsed", key="ic_map_color")
+            with col2:
+                template_params["icons"] = st.text_input("图标", "简化图标", label_visibility="collapsed", key="ic_icons")
+        elif template_category == "游戏加载界面":
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                template_params["loading_type"] = st.text_input("加载类型", "游戏主题", label_visibility="collapsed", key="ic_loading_type")
+            with col2:
+                template_params["bg_style"] = st.text_input("背景风格", "动态背景", label_visibility="collapsed", key="ic_bg_style")
+            with col3:
+                template_params["progress_bar_style"] = st.text_input("进度条样式", "发光进度条", label_visibility="collapsed", key="ic_progress")
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                template_params["text_style"] = st.text_input("文字样式", "白色粗体", label_visibility="collapsed", key="ic_text_style")
+            with col2:
+                template_params["animations"] = st.text_input("动画", "旋转加载图标", label_visibility="collapsed", key="ic_animations")
+            with col3:
+                template_params["resolution"] = st.text_input("分辨率", "1920x1080", label_visibility="collapsed", key="ic_resolution")
         
         if st.button("📋 应用模板"):
             # 填充模板参数
@@ -600,7 +769,7 @@ elif option == "图像生成":
         if 'generated_image' in st.session_state and st.session_state.generated_image:
             st.success("生成成功！")
             st.markdown("### 生成结果")
-            st.image(st.session_state.generated_image, use_container_width=True)
+            st.image(st.session_state.generated_image, use_container_width=True, clamp=True, caption="生成的图像")
         
         if save_image_btn:
             if 'generated_image' in st.session_state and st.session_state.generated_image:
@@ -628,7 +797,7 @@ elif option == "图像生成":
                         # 直接显示结果，不需要刷新页面
                         st.success("生成成功！")
                         st.markdown("### 生成结果")
-                        st.image(image_url, use_container_width=True)
+                        st.image(image_url, use_container_width=True, clamp=True, caption="生成的图像")
                         
                         # 提供下载按钮
                         if image_url.startswith('http'):
@@ -658,8 +827,63 @@ elif option == "数据生成":
         # 提示词模板库
         st.subheader("🎨 提示词模板库")
         template_category = st.selectbox("选择模板类型", list(DATA_TEMPLATES.keys()))
+        
+        # 根据模板类型显示不同的参数输入
+        template_params = {}
+        if template_category == "游戏角色属性":
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                template_params["character_count"] = st.text_input("角色数量", "5-10", label_visibility="collapsed", key="dc_char_count")
+            with col2:
+                template_params["character_types"] = st.text_input("职业类型", "战士/法师/刺客", label_visibility="collapsed", key="dc_char_types")
+            with col3:
+                template_params["level_range"] = st.text_input("等级范围", "1-100", label_visibility="collapsed", key="dc_level_range")
+        elif template_category == "游戏物品数据":
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                template_params["item_count"] = st.text_input("物品数量", "10-15", label_visibility="collapsed", key="di_item_count")
+            with col2:
+                template_params["item_types"] = st.text_input("物品类型", "武器/护甲/饰品", label_visibility="collapsed", key="di_item_types")
+            with col3:
+                template_params["rarities"] = st.text_input("稀有度", "普通/稀有/史诗", label_visibility="collapsed", key="di_rarities")
+        elif template_category == "游戏任务数据":
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                template_params["quest_count"] = st.text_input("任务数量", "8-12", label_visibility="collapsed", key="dq_quest_count")
+            with col2:
+                template_params["quest_types"] = st.text_input("任务类型", "主线/支线/日常", label_visibility="collapsed", key="dq_quest_types")
+            with col3:
+                template_params["difficulty_range"] = st.text_input("难度范围", "1-5星", label_visibility="collapsed", key="dq_difficulty")
+        elif template_category == "游戏敌人数据":
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                template_params["enemy_count"] = st.text_input("敌人数量", "10-15", label_visibility="collapsed", key="de_enemy_count")
+            with col2:
+                template_params["enemy_types"] = st.text_input("敌人类型", "普通/精英/Boss", label_visibility="collapsed", key="de_enemy_types")
+            with col3:
+                template_params["level_range"] = st.text_input("等级范围", "1-100", label_visibility="collapsed", key="de_level_range")
+        elif template_category == "游戏对话脚本":
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                template_params["dialogue_count"] = st.text_input("对话数量", "15-20", label_visibility="collapsed", key="dd_dialogue_count")
+            with col2:
+                template_params["dialogue_types"] = st.text_input("对话类型", "NPC对话/系统对话", label_visibility="collapsed", key="dd_dialogue_types")
+            with col3:
+                template_params["dialogue_rounds"] = st.text_input("对话轮数", "3-5", label_visibility="collapsed", key="dd_dialogue_rounds")
+        elif template_category == "游戏技能配置":
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                template_params["skill_count"] = st.text_input("技能数量", "12-18", label_visibility="collapsed", key="ds_skill_count")
+            with col2:
+                template_params["skill_types"] = st.text_input("技能类型", "主动/被动/终极", label_visibility="collapsed", key="ds_skill_types")
+            with col3:
+                template_params["skill_categories"] = st.text_input("技能分类", "物理/魔法/控制", label_visibility="collapsed", key="ds_skill_categories")
+        
         if st.button("📋 应用模板"):
-            st.session_state.data_prompt = DATA_TEMPLATES[template_category]
+            # 填充模板参数
+            template = DATA_TEMPLATES[template_category]
+            filled_template = template.format(**template_params)
+            st.session_state.data_prompt = filled_template
         
         # 输入提示词
         prompt = st.text_area("提示词", value=st.session_state.get('data_prompt', ''), placeholder="例如：生成一个RPG游戏的角色属性表，包含名称、等级、生命值、攻击力等字段", height=150)
@@ -950,6 +1174,41 @@ elif option == "多语言在地化":
                         
                     except Exception as e:
                         st.error(f"翻译失败：{str(e)}")
+
+# ==================== 玩家体验预测器 ====================
+
+elif option == "玩家体验预测器":
+    st.header("🎮 玩家体验预测器 (Player Experience Predictor)")
+    st.write("基于 Lankes (2023) 提出的 Player Experience Inventory (PXI) 框架，利用 AI 分析游戏玩法描述，预测玩家体验维度的评分并生成雷達圖。")
+    
+    # 学术背景介绍
+    display_academic_background()
+    
+    # 检查API是否配置
+    if not check_api_configured(st.session_state.selected_model):
+        st.warning(f"⚠️ {st.session_state.selected_model} 的API密钥未配置，请在侧边栏选择其他模型或前往「API设置」页面配置")
+    else:
+        # 输入游戏玩法描述
+        gameplay_description = st.text_area(
+            "输入游戏玩法描述", 
+            placeholder="例如：玩家需要在極短時間內解開複雜謎題，每關有3次失敗機會，成功後獲得星星獎勵", 
+            height=200
+        )
+        
+        # 分析按钮
+        if st.button("🔍 分析玩家体验", type="primary"):
+            if not gameplay_description:
+                st.error("请输入游戏玩法描述")
+            else:
+                with st.spinner("分析中..."):
+                    # 调用PXI分析函数
+                    dimensions, scores, analysis, elapsed_time, tokens, error = analyze_pxi_dimensions(gameplay_description, st.session_state.selected_model)
+                    
+                    if error:
+                        st.error(error)
+                    else:
+                        # 显示分析结果
+                        display_pxi_results(dimensions, scores, analysis, elapsed_time, tokens)
 
 # ==================== 致谢页面 ====================
 
