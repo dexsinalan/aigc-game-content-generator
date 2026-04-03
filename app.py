@@ -1117,7 +1117,7 @@ elif option == "多语言在地化":
             # 显示翻译结果
             for lang, translation in st.session_state.translations.items():
                 with st.expander(f"{lang}"):
-                    st.text(translation)
+                    st.markdown(f"```\n{translation}\n```")
             
             # 下载按钮
             with col2:
@@ -1192,7 +1192,7 @@ elif option == "多语言在地化":
                         # 显示翻译结果
                         for lang, translation in translations.items():
                             with st.expander(f"{lang}"):
-                                st.text(translation)
+                                st.markdown(f"```\n{translation}\n```")
                         
                         # 下载按钮
                         with col2:
