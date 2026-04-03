@@ -804,7 +804,7 @@ elif option == "图像生成":
                         # 直接显示结果，不需要刷新页面
                         st.success("生成成功！")
                         st.markdown("### 生成结果")
-                        st.image(image_url, use_container_width=True, clamp=True, caption="生成的图像")
+                        st.image(image_url, width=600, clamp=True, caption="生成的图像")
                         
                         # 提供下载按钮
                         if image_url.startswith('http'):
