@@ -1405,6 +1405,10 @@ elif option == "VGDL生成器":
                             st.write(f"- {issue}")
                     else:
                         st.success("✅ 代码逻辑检查通过！")
+                
+                # 显示耗时和Token
+                if 'vgdl_elapsed_time' in st.session_state and 'vgdl_tokens' in st.session_state:
+                    st.info(f"本次耗时：{st.session_state.vgdl_elapsed_time:.2f}秒 | 消耗Token：{st.session_state.vgdl_tokens}")
             else:
                 st.info("生成的VGDL代码将显示在这里")
         
@@ -1422,14 +1426,12 @@ elif option == "VGDL生成器":
                     else:
                         # 保存到session state
                         st.session_state.generated_vgdl = vgdl_code
+                        st.session_state.vgdl_elapsed_time = elapsed_time
+                        st.session_state.vgdl_tokens = tokens
                         st.success("VGDL代码生成成功！")
                         
-                        # 显示结果
-                        st.markdown("### 🖥️ 生成的VGDL代码")
-                        st.code(vgdl_code, language="plaintext")
-                        
-                        # 显示耗时和Token
-                        st.info(f"本次耗时：{elapsed_time:.2f}秒 | 消耗Token：{tokens}")
+                        # 重新渲染页面以显示更新后的内容
+                        st.experimental_rerun()
 
 # ==================== 致谢页面 ====================
 
