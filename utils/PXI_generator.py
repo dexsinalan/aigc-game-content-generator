@@ -1,7 +1,7 @@
 import json
-import matplotlib.pyplot as plt
-import numpy as np
 import streamlit as st
+import pandas as pd
+import plotly.express as px
 from utils.text_generator import generate_text_for_model
 
 # PXI维度定义
@@ -149,41 +149,49 @@ def analyze_pxi_dimensions(gameplay_description, model):
         return None, None, None, 0, 0, f"分析失败：{str(e)}"
 
 
-def create_radar_chart(scores):
+def create_radar_chart(dimensions, scores):
     """创建PXI雷达图"""
-    # 生成雷达图
-    plt.figure(figsize=(5, 4))
+    # 准备数据
+    pxi_data = {
+        "Metric": list(dimensions.keys()),
+        "Score": list(dimensions.values())
+    }
     
-    # 计算角度
-    angles = np.linspace(0, 2 * np.pi, len(PXI_DIMENSIONS), endpoint=False).tolist()
-    angles += angles[:1]
+    df = pd.DataFrame(pxi_data)
     
-    # 复制最后一个值以闭合图形
-    scores_circle = scores + scores[:1]
+    # 创建雷达图
+    fig = px.line_polar(
+        df, 
+        r='Score', 
+        theta='Metric', 
+        line_close=True,
+        title='Player Experience Dimensions',
+        range_r=[0, 10],
+        markers=True,
+        color_discrete_sequence=['#636EFA']
+    )
     
-    # 绘制雷达图
-    ax = plt.subplot(111, polar=True)
-    ax.plot(angles, scores_circle, 'o-', linewidth=2, label='Predicted Score')
-    ax.fill(angles, scores_circle, alpha=0.25)
+    # 自定义布局
+    fig.update_layout(
+        polar=dict(
+            radialaxis=dict(visible=True, range=[0, 10], dtick=2),
+            angularaxis=dict(tickfont=dict(size=10))
+        ),
+        title=dict(font=dict(size=14))
+    )
     
-    # 设置标签
-    ax.set_thetagrids(np.degrees(angles[:-1]), PXI_DIMENSIONS, fontsize=8)
-    ax.set_ylim(0, 10)
-    ax.set_title('Player Experience Dimensions', size=10, y=1.1)
-    ax.legend(loc='upper right', bbox_to_anchor=(0.1, 0.1), fontsize=7)
-    
-    return plt
+    return fig
 
 
 def display_pxi_results(dimensions, scores, analysis, elapsed_time, tokens):
     """显示PXI分析结果"""
     # 显示雷达图
-    plt = create_radar_chart(scores)
+    fig = create_radar_chart(dimensions, scores)
     
     # 使用列布局限制图表宽度
     col1, col2 = st.columns([2, 1])
     with col1:
-        st.pyplot(plt, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True)
     
     # 显示分析结果
     st.success("分析完成！")

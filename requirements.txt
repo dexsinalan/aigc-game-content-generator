@@ -7,3 +7,4 @@ dashscope
 websocket-client
 matplotlib
 numpy
+plotly
