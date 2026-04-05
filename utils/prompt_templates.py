@@ -284,7 +284,7 @@ DATA_TEMPLATES = {
 - character_age: 角色年龄
 
 属性数值：
-- level: 当前等级（1-100）
+- level: 当前等级（LV1-100）
 - exp: 当前经验值
 - exp_to_next: 升级所需经验
 - health: 生命值（基础值+装备加成）
@@ -332,7 +332,7 @@ DATA_TEMPLATES = {
 - item_type: 物品类型（weapon/armor/accessory/consumable/material/quest/coin）
 - item_subtype: 物品子类型（如：sword/bow/staff/shield等）
 - item_rarity: 稀有度（common/uncommon/rare/epic/legendary）
-- item_level: 物品等级需求（1-100）
+- item_level: 物品等级需求（LV1-100）
 - item_quality: 物品品质（1-5星）
 
 属性数值：
