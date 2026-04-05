@@ -1246,7 +1246,7 @@ elif option == "多语言在地化":
 
 elif option == "玩家体验预测器":
     st.header("🎮 玩家体验预测器 (Player Experience Predictor)")
-    st.write("基于 Lankes (2023) 提出的 Player Experience Inventory (PXI) 框架，利用 AI 分析游戏玩法描述，预测玩家体验维度的评分并生成雷達圖。")
+    st.write("基于 Lankes (2023) 提出的 Player Experience Inventory (PXI) 框架，利用 AI 分析游戏玩法描述，预测玩家体验维度的评分并生成雷达图。")
     
     # 学术背景介绍
     display_academic_background()
