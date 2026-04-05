@@ -173,7 +173,7 @@ elif image_gen_btn:
 elif data_gen_btn:
     st.session_state.current_page = "数据生成"
 elif translation_btn:
-    st.session_state.current_page = "多语言在地化"
+    st.session_state.current_page = "多语言本地化"
 elif player_exp_btn:
     st.session_state.current_page = "玩家体验预测器"
 elif level_gen_btn:
@@ -188,7 +188,7 @@ elif thanks_btn:
 option = st.session_state.current_page
 
 # ==================== 模型选择 ====================
-if option in ["文本生成", "图像生成", "数据生成", "多语言在地化", "玩家体验预测器", "关卡原型生成器", "VGDL生成器"]:
+if option in ["文本生成", "图像生成", "数据生成", "多语言本地化", "玩家体验预测器", "关卡原型生成器", "VGDL生成器"]:
     st.sidebar.divider()
     st.sidebar.subheader("🤖 模型选择")
     
