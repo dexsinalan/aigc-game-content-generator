@@ -651,7 +651,7 @@ elif option == "文本生成":
         with col1:
             generate_btn = st.button("🚀 生成文本", type="primary")
         with col2:
-            save_text_btn = st.markdown("""
+            st.markdown("""
             <style>
             button[data-testid="baseButton-secondary"] {
                 background-color: #4CAF50 !important;
@@ -659,23 +659,20 @@ elif option == "文本生成":
             }
             </style>
             """, unsafe_allow_html=True)
-            save_text_btn = st.button("💾 保存文本", key="save_text_btn")
-        
         # 显示保存的生成结果
         if 'generated_text' in st.session_state and st.session_state.generated_text:
             st.success("生成成功！")
             st.markdown("### 生成结果")
             st.write(st.session_state.generated_text)
             st.code(st.session_state.generated_text, language="text")
-        
-        if save_text_btn:
-            if 'generated_text' in st.session_state and st.session_state.generated_text:
-                st.download_button(
-                    label="💾 保存文本",
-                    data=st.session_state.generated_text,
-                    file_name=f"generated_text_{st.session_state.selected_model}.txt",
-                    mime="text/plain"
-                )
+            
+            # 直接显示下载按钮
+            st.download_button(
+                label="💾 保存文本",
+                data=st.session_state.generated_text,
+                file_name=f"generated_text_{st.session_state.selected_model}.txt",
+                mime="text/plain"
+            )
         
         if generate_btn:
             if not prompt:
@@ -692,8 +689,15 @@ elif option == "文本生成":
                         st.markdown("### 生成结果")
                         st.write(result)
                         st.code(result, language="text")
+                        # 显示保存按钮
+                        st.download_button(
+                            label="💾 保存文本",
+                            data=result,
+                            file_name=f"generated_text_{st.session_state.selected_model}.txt",
+                            mime="text/plain"
+                        )
                         # 显示耗时和Token消耗
-                        st.info(f"本次耗时：{elapsed_time:.2f}秒 | 消耗Token：{tokens}")
+                        st.info(f"本次耗时：{elapsed_time:.2f}秒 | 本次预计消耗Token：{tokens}")
                     except Exception as e:
                         st.error(f"生成失败：{str(e)}")
 
@@ -822,26 +826,22 @@ elif option == "图像生成":
             }
             </style>
             """, unsafe_allow_html=True)
-            save_image_btn = st.button("💾 保存图像", key="save_image_btn")
-        
         # 显示保存的生成结果
         if 'generated_image' in st.session_state and st.session_state.generated_image:
             st.success("生成成功！")
             st.markdown("### 生成结果")
             st.image(st.session_state.generated_image, width=600, clamp=True, caption="生成的图像")
-        
-        if save_image_btn:
-            if 'generated_image' in st.session_state and st.session_state.generated_image:
-                # 提供下载按钮
-                if st.session_state.generated_image.startswith('http'):
-                    response = requests.get(st.session_state.generated_image)
-                    if response.status_code == 200:
-                        st.download_button(
-                            label="💾 保存图像",
-                            data=response.content,
-                            file_name=f"generated_image_{st.session_state.selected_model}.png",
-                            mime="image/png"
-                        )
+            
+            # 提供下载按钮
+            if st.session_state.generated_image.startswith('http'):
+                response = requests.get(st.session_state.generated_image)
+                if response.status_code == 200:
+                    st.download_button(
+                        label="💾 保存图像",
+                        data=response.content,
+                        file_name=f"generated_image_{st.session_state.selected_model}.png",
+                        mime="image/png"
+                    )
         
         if generate_btn:
             if not prompt:
@@ -863,13 +863,13 @@ elif option == "图像生成":
                             response = requests.get(image_url)
                             if response.status_code == 200:
                                 st.download_button(
-                                    label="💾 下载图像",
+                                    label="💾 保存图像",
                                     data=response.content,
                                     file_name=f"generated_image_{st.session_state.selected_model}.png",
                                     mime="image/png"
                                 )
                         # 显示耗时和Token消耗
-                        st.info(f"本次耗时：{elapsed_time:.2f}秒 | 消耗Token：{tokens}")
+                        st.info(f"本次耗时：{elapsed_time:.2f}秒 | 本次预计消耗Token：{tokens}")
                     except Exception as e:
                         st.error(f"生成失败：{str(e)}")
 
@@ -1071,7 +1071,7 @@ elif option == "数据生成":
                                         mime="application/xmind"
                                     )
                             # 显示耗时和Token消耗
-                            st.info(f"本次耗时：{elapsed_time:.2f}秒 | 消耗Token：{tokens}")
+                            st.info(f"本次耗时：{elapsed_time:.2f}秒 | 本次预计消耗Token：{tokens}")
                         else:
                             st.error(filename)  # 显示错误信息
                             
@@ -1345,6 +1345,15 @@ elif option == "关卡原型生成器":
                         st.session_state.generated_json_map = json_map
                         st.session_state.level_desc = level_desc
                         st.success("关卡生成成功！")
+                        
+                        # 直接显示下载按钮
+                        st.download_button(
+                            label="📥 下载ASCII地图",
+                            data=ascii_map,
+                            file_name="level_map.txt",
+                            mime="text/plain",
+                            key="download_ascii_direct"
+                        )
         
         # 显示生成的关卡
         if 'generated_ascii_map' in st.session_state and st.session_state.generated_ascii_map:
@@ -1404,7 +1413,7 @@ elif option == "关卡原型生成器":
                 st.write(st.session_state.level_story.get('level_design_notes', ''))
                 
                 # 显示耗时和Token
-                st.info(f"本次耗时：{elapsed_time:.2f}秒 | 消耗Token：{tokens}")
+                st.info(f"本次耗时：{elapsed_time:.2f}秒 | 本次预计消耗Token：{tokens}")
 
 # ==================== VGDL生成器 ====================
 
@@ -1498,7 +1507,7 @@ elif option == "VGDL生成器":
                 
                 # 显示耗时和Token
                 if 'vgdl_elapsed_time' in st.session_state and 'vgdl_tokens' in st.session_state:
-                    st.info(f"本次耗时：{st.session_state.vgdl_elapsed_time:.2f}秒 | 消耗Token：{st.session_state.vgdl_tokens}")
+                    st.info(f"本次耗时：{st.session_state.vgdl_elapsed_time:.2f}秒 | 本次预计消耗Token：{st.session_state.vgdl_tokens}")
             else:
                 st.info("生成的VGDL代码将显示在这里")
         
@@ -1534,11 +1543,11 @@ elif option == "致谢":
     st.write("""
     感谢所有支持和帮助本项目的人员！
     
-    **作者:** 
+    **作者: Sin Kin Chi** 
     
-    **联系方式:** 
+    **联系方式: 614871390@qq.com**
     
-    **指导老师:** 
+    **指导老师: 中山大学 软件工程学院 周育人 教授** 
     """)
     
     st.subheader("📝 免责声明")

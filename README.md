@@ -30,7 +30,7 @@
 
 ## 在线访问
 
-直接访问：[aigcsysu.streamlit.app](https://aigcsysu.streamlit.app)
+直接访问：[aigcskc.streamlit.app](https://aigcskc.streamlit.app)
 
 ## 使用说明
 

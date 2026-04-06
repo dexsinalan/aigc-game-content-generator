@@ -1,6 +1,7 @@
 import json
 import streamlit as st
 from utils.text_generator import generate_text_for_model
+from utils.prompt_templates import LEVEL_PROMPT, STORY_PROMPT
 
 # 关卡元素定义
 LEVEL_ELEMENTS = {
@@ -20,11 +21,6 @@ LEVEL_ELEMENTS = {
 
 # 学术背景介绍
 ACADEMIC_BACKGROUND = """
-**学术背景：**
-- 基于 Togelius (2015) 与 Ratican (2024) 提出的混合主动式设计（Mixed-Initiative）理念
-- 强调 AI 与人类设计师的协同工作，而非完全自动化
-- 核心理念：AI 生成基础结构，人类设计师进行微调和创意补充
-- 技术价值：展示数据驱动的生成逻辑，生成的内容可直接导入游戏引擎（如 Unity）使用
 
 **功能说明：**
 - 生成结构化关卡数据（ASCII 地图 / JSON 数组）
@@ -58,79 +54,18 @@ def generate_level_prompt(description, width=10, height=10, shape="矩形"):
     elif shape == "U形":
         shape_requirement = "6. 地图形状应该是U形，有明显的凹陷区域"
     
-    prompt = f"""请根据以下描述生成一个 {width}x{height} 的游戏关卡地图。
-
-关卡描述：
-{description}
-
-地图元素说明：
-# = 墙壁 (不可通行)
-. = 道路 (可通行)
-P = 玩家起点
-E = 出口
-M = 怪物
-T = 陷阱
-C = 宝箱
-K = 钥匙
-D = 门（需要钥匙）
-H = 治疗点
-S = 商店
-B = Boss
-
-要求：
-1. 生成一个 {width}x{height} 的 ASCII 地图，确保地图宽度为 {width} 字符，高度为 {height} 行
-2. 必须包含玩家起点(P)和出口(E)
-3. 确保地图有可行路径从P到E
-4. 合理分布怪物、陷阱、宝箱等元素
-5. 地图应该有挑战性但不过于困难
-{shape_requirement}
-6. 每次生成不同的地图布局，不要重复之前的设计
-
-请按照以下JSON格式输出结果：
-{{
-  "ascii_map": "##########\\n#P.......#\\n#...M....#\\n#........#\\n#....E...#\\n##########",
-  "json_map": [["#","#","#","#","#","#","#","#","#","#"],["#","P",".",".",".",".",".",".",".","#"],["#",".",".",".","M",".",".",".",".","#"],["#",".",".",".",".",".",".",".",".","#"],["#",".",".",".",".","E",".",".",".","#"],["#","#","#","#","#","#","#","#","#","#"]],
-  "description": "关卡的简要描述"
-}}
-
-注意：
-- ascii_map 使用 \\n 作为换行符
-- json_map 是一个二维数组
-- 确保 JSON 格式有效
-- 只输出 JSON，不要有其他文字"""
+    prompt = LEVEL_PROMPT.format(
+        width=width,
+        height=height,
+        description=description,
+        shape_requirement=shape_requirement
+    )
     return prompt
 
 
 def generate_story_prompt(ascii_map):
     """构建背景故事生成提示词"""
-    prompt = f"""请根据以下 ASCII 地图生成关卡的背景故事和怪物配置。
-
-地图：
-{ascii_map}
-
-请按照以下JSON格式输出结果：
-{{
-  "background_story": "关卡的背景故事，包括场景设定、氛围描述等（200-300字）",
-  "monster_config": [
-    {{
-      "symbol": "M",
-      "name": "怪物名称",
-      "description": "怪物描述",
-      "hp": 100,
-      "attack": 20,
-      "behavior": "怪物行为模式"
-    }}
-  ],
-  "level_design_notes": "关卡设计要点和建议"
-}}
-
-要求：
-1. 背景故事要与地图结构相符
-2. 为地图中的每个怪物(M)和Boss(B)提供详细配置
-3. 怪物配置要平衡，符合关卡难度
-4. 提供关卡设计建议
-
-请确保输出是有效的JSON格式。"""
+    prompt = STORY_PROMPT.format(ascii_map=ascii_map)
     return prompt
 
 
@@ -225,5 +160,5 @@ def display_level_elements_reference():
 
 def display_academic_background():
     """显示学术背景介绍"""
-    with st.expander("📚 学术背景与功能说明"):
+    with st.expander("📚 功能说明"):
         st.write(ACADEMIC_BACKGROUND)

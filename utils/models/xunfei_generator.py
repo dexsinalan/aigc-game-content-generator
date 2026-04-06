@@ -266,9 +266,14 @@ def generate_data_xunfei(data_prompt, data_type):
                 
                 result = result.strip()
                 data = json.loads(result)
-                return data, f"generated_data_xunfei.json"
+                return data, f"generated_json_xunfei.json"
             except json.JSONDecodeError as e:
-                return None, f"JSON解析失败：{str(e)}\n生成的内容：{result[:500]}"
+                # 增加更详细的错误信息
+                error_pos = min(e.pos + 50, len(result))
+                error_context = result[max(0, e.pos - 50):error_pos]
+                return None, f"""JSON解析失败：{str(e)}
+错误位置上下文：...{error_context}...
+完整生成内容：{result}"""
         elif data_type == "XLSX":
             try:
                 # 清理可能的Markdown代码块标记
@@ -285,11 +290,16 @@ def generate_data_xunfei(data_prompt, data_type):
                 # 转换为DataFrame
                 if isinstance(data_list, list) and len(data_list) > 0:
                     df = pd.DataFrame(data_list)
-                    return df, f"generated_data_xunfei.xlsx"
+                    return df, f"generated_xlsx_xunfei.xlsx"
                 else:
                     return None, "生成的数据格式不正确，应该是一个数组"
             except json.JSONDecodeError as e:
-                return None, f"JSON解析失败：{str(e)}\n生成的内容：{result[:500]}"
+                # 增加更详细的错误信息
+                error_pos = min(e.pos + 50, len(result))
+                error_context = result[max(0, e.pos - 50):error_pos]
+                return None, f"""JSON解析失败：{str(e)}
+错误位置上下文：...{error_context}...
+完整生成内容：{result}"""
         elif data_type == "mindmap":
             return result, f"generated_mindmap_xunfei.txt"
         else:

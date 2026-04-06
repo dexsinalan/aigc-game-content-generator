@@ -47,7 +47,7 @@ BAIDU_SECRET_KEY=你的百度文心一言Secret密钥
 
 ### 6. 访问应用
 部署成功后，您可以通过以下地址访问应用：
-`https://aigcsysu.streamlit.app`
+`https://aigcskc.streamlit.app`
 
 ## 注意事项
 

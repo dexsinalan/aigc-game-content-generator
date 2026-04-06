@@ -8,6 +8,7 @@ from .models.claude_generator import translate_text_claude
 from .models.gpt_generator import translate_text_gpt
 from .models.deepseek_generator import translate_text_deepseek
 from .models.silicon_generator import translate_text_silicon
+from .prompt_templates import TRANSLATION_PROMPT
 
 # 支持的语言列表
 SUPPORTED_LANGUAGES = {
@@ -35,48 +36,32 @@ SUPPORTED_LANGUAGES = {
 LANGUAGE_CODES = {v: k for k, v in SUPPORTED_LANGUAGES.items()}
 
 # 语言名称映射：中文 -> 英文
-def get_translation_prompt(text, target_language):
-    """获取翻译提示词，包含游戏相关的偏向"""
-    # 语言名称映射：中文 -> 英文
-    language_map = {
-        "中文": "Chinese",
-        "英文": "English",
-        "日文": "Japanese",
-        "韩文": "Korean",
-        "法文": "French",
-        "德文": "German",
-        "西班牙文": "Spanish",
-        "葡萄牙文": "Portuguese",
-        "意大利文": "Italian",
-        "俄文": "Russian",
-        "阿拉伯文": "Arabic",
-        "印地文": "Hindi",
-        "越南文": "Vietnamese",
-        "泰文": "Thai",
-        "印尼文": "Indonesian",
-        "马来文": "Malay",
-        "土耳其文": "Turkish",
-        "波兰文": "Polish"
-    }
-    
-    # 使用英文语言名称
-    en_language = language_map.get(target_language, target_language)
-    
-    return f"""请将以下游戏相关文本翻译成{en_language}：
-{text}
-
-要求：
-1. 准确翻译，保持原文意思
-2. 只返回翻译结果，不要包含任何解释文字
-3. 翻译结果要流畅自然，符合游戏语境
-4. 对于游戏术语和专有名词，保持一致性
-5. 考虑游戏本地化的特点，使翻译更符合目标语言玩家的习惯
-
-请直接返回翻译结果："""
+LANGUAGE_MAP = {
+    "中文": "Chinese",
+    "英文": "English",
+    "日文": "Japanese",
+    "韩文": "Korean",
+    "法文": "French",
+    "德文": "German",
+    "西班牙文": "Spanish",
+    "葡萄牙文": "Portuguese",
+    "意大利文": "Italian",
+    "俄文": "Russian",
+    "阿拉伯文": "Arabic",
+    "印地文": "Hindi",
+    "越南文": "Vietnamese",
+    "泰文": "Thai",
+    "印尼文": "Indonesian",
+    "马来文": "Malay",
+    "土耳其文": "Turkish",
+    "波兰文": "Polish"
+}
 
 def translate_text_for_model(text, target_language, model):
     """使用指定的模型翻译文本"""
-    prompt = get_translation_prompt(text, target_language)
+    # 使用英文语言名称
+    en_language = LANGUAGE_MAP.get(target_language, target_language)
+    prompt = TRANSLATION_PROMPT.format(target_language=en_language, text=text)
     
     if model == "百度文心一言":
         return translate_text_baidu(prompt)

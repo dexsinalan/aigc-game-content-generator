@@ -12,55 +12,7 @@ from utils.models.claude_generator import generate_text_claude, generate_data_cl
 from utils.models.gpt_generator import generate_text_gpt, generate_data_gpt
 from utils.models.deepseek_generator import generate_text_deepseek, generate_data_deepseek
 from utils.models.silicon_generator import generate_text_silicon, generate_data_silicon
-
-# 预prompt定义
-JSON_PROMPT = """请根据以下描述生成JSON数据：
-{prompt}
-
-要求：
-1. 只返回JSON数据，不要包含任何解释文字
-2. 确保JSON格式正确，可以被Python的json.loads()解析
-3. 数据应该包含合理的字段和示例数据
-4. 如果是表格数据，使用数组格式，数据量根据用戶要求而定
-
-请直接返回JSON数据："""
-
-XLSX_PROMPT = """请根据以下描述生成表格数据，并返回JSON数组格式：
-{prompt}
-
-要求：
-1. 返回JSON数组格式，每个元素是一个对象，代表一行数据
-2. 确保所有对象具有相同的字段
-3. 只返回JSON数组，不要包含任何解释文字
-4. 数据量根据用戶要求而定
-
-请直接返回JSON数组："""
-
-MINDMAP_PROMPT = """请根据以下描述生成思维导图数据，使用Markdown列表格式：
-{prompt}
-
-要求：
-1. 使用Markdown列表格式（- 和缩进）
-2. 第一行是中心主题
-3. 使用2个空格作为缩进表示层级关系
-4. 包含多个主要分支，每个分支可以有多个子节点
-5. 只返回思维导图内容，不要包含任何解释文字
-6. 确保格式干净，没有多余的空行或注释
-
-示例格式：
-游戏设计
-- 角色系统
-  - 战士
-  - 法师
-  - 弓箭手
-- 战斗系统
-  - 回合制
-  - 实时战斗
-- 任务系统
-  - 主线任务
-  - 支线任务
-
-请直接返回思维导图内容："""
+from utils.prompt_templates import JSON_PROMPT, XLSX_PROMPT, MINDMAP_PROMPT
 
 def generate_text_for_data(prompt, model):
     """使用指定的模型生成文本数据"""
@@ -113,7 +65,7 @@ def generate_data_for_model(prompt, model, data_type):
     elif model == "Claude":
         result, filename = generate_data_claude(data_prompt, data_type)
     elif model == "ChatGPT":
-        result, filename = generate_data_gpt(prompt, data_type)
+        result, filename = generate_data_gpt(data_prompt, data_type)
     elif model == "DeepSeek":
         result, filename = generate_data_deepseek(data_prompt, data_type)
     elif model == "硅基流动":
@@ -126,7 +78,7 @@ def generate_data_for_model(prompt, model, data_type):
     elapsed_time = end_time - start_time
     
     # 计算Token消耗（简化计算，实际应该根据模型返回的使用情况）
-    # 这里使用一个简单的估算：每个中文字符算2个Token，每个英文字符算1个Token
+    # 这里使用一个简单的估算：每个中文字符算3个Token，每个英文字符算1.5个Token
     if isinstance(result, str):
         # 计算中文字符数
         chinese_chars = sum(1 for char in result if '\u4e00' <= char <= '\u9fff')
@@ -135,21 +87,21 @@ def generate_data_for_model(prompt, model, data_type):
         # 计算其他字符数
         other_chars = len(result) - chinese_chars - english_chars
         # 估算Token数
-        tokens = chinese_chars * 2 + english_chars + other_chars
+        tokens = chinese_chars * 3 + int(english_chars * 1.5) + other_chars
     elif isinstance(result, dict) or isinstance(result, list):
         # 对于JSON数据，将其转换为字符串后计算
         result_str = json.dumps(result, ensure_ascii=False)
         chinese_chars = sum(1 for char in result_str if '\u4e00' <= char <= '\u9fff')
         english_chars = sum(1 for char in result_str if 'a' <= char.lower() <= 'z')
         other_chars = len(result_str) - chinese_chars - english_chars
-        tokens = chinese_chars * 2 + english_chars + other_chars
+        tokens = chinese_chars * 3 + int(english_chars * 1.5) + other_chars
     elif isinstance(result, pd.DataFrame):
         # 对于DataFrame，将其转换为字符串后计算
         result_str = result.to_string()
         chinese_chars = sum(1 for char in result_str if '\u4e00' <= char <= '\u9fff')
         english_chars = sum(1 for char in result_str if 'a' <= char.lower() <= 'z')
         other_chars = len(result_str) - chinese_chars - english_chars
-        tokens = chinese_chars * 2 + english_chars + other_chars
+        tokens = chinese_chars * 3 + int(english_chars * 1.5) + other_chars
     
     return result, filename, elapsed_time, tokens
 

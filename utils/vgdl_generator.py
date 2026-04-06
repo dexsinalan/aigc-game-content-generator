@@ -2,6 +2,7 @@ import json
 import re
 import streamlit as st
 from utils.text_generator import generate_text_for_model
+from utils.prompt_templates import VGDL_PROMPT
 
 # 学术背景介绍
 ACADEMIC_BACKGROUND = """
@@ -83,78 +84,10 @@ VGDL_PATTERNS = {
 
 def generate_vgdl_prompt(game_description):
     """构建VGDL生成提示词"""
-    prompt = f"""你现在是一个游戏架构师。请根据用户描述，首先生成符合 Perez-Liebana (2019) 标准的 VGDL 代码，然后将该 VGDL 逻辑转译为一段完整的、可运行的 Pygame 脚本。
-
-用户描述：
-{game_description}
-
-第一部分：VGDL 代码
-VGDL 语法要求：
-1. 必须包含以下四个核心部分：
-   - SpriteSet (物件定义层)
-   - InteractionSet (互动规则层)
-   - LevelMapping (地图映射层)
-   - TerminationSet (终止条件层)
-
-2. 语法格式示例：
-{VGDL_TEMPLATE}
-
-3. 转换逻辑：
-   - 当用户提到「玩家」或「主角」，对应到 avatar
-   - 当用户提到「敌人」或「怪物」，对应到 alien 或其他合适的类型
-   - 当用户提到「子弹」，对应到 Missile
-   - 当用户提到「墙壁」，对应到 wall
-   - 当用户提到「碰撞」或「反弹」，使用 bounceForward 或 stepBack
-   - 当用户提到「得分」，使用 scoreChange
-   - 当用户提到「胜利条件」，在 TerminationSet 中定义
-
-第二部分：Pygame 脚本
-Pygame 脚本要求：
-1. 自我包含 (Self-contained) 的完整脚本，包含所有必要的导入和初始化
-2. 必须包含 if __name__ == "__main__": 入口
-3. 预设视窗大小为 800x600
-4. 基本的方块渲染（白模），遵循以下视觉标准：
-   - 蓝色方块：代表玩家 (Avatar)
-   - 红色方块：代表敌人 (Aliens/Enemies)
-   - 绿色/黄色方块：代表目标或金币 (Goals/Collectibles)
-   - 黑色/灰色方块：代表墙壁 (Walls/Obstacles)
-5. 键盘控制逻辑
-6. 碰撞检测和游戏规则逻辑（必须直接翻译自InteractionSet）
-7. 基本的游戏循环和渲染
-8. 必须包含一个简单的「游戏结束」或「胜利」文字提示
-9. 必须包含错误处理和异常捕获，确保游戏不会崩溃
-10. 必须包含边界检查，防止对象超出屏幕范围
-11. 必须正确管理Pygame资源，确保在游戏结束时正确释放
-12. 确保所有精灵组都正确初始化和管理
-13. 确保所有必要的Pygame初始化步骤都已完成
-14. **重要**：所有游戏对象（玩家、敌人、金币等）必须在 main() 函数内部创建和初始化
-15. **重要**：精灵组必须在 main() 函数内部创建，不要在全局作用域创建
-16. **重要**：确保游戏开始时就有必要的对象（如玩家、敌人、金币等），不要等到游戏运行后才生成
-
-重要：
-- 所有的碰撞逻辑必须直接翻译自 InteractionSet，例如：
-  如果 VGDL 里有 'bullet alien > killSprite'，
-  Pygame 代码里必须有对应的 spritecollide 逻辑。
-- 确保代码可以直接运行，不需要额外的文件或依赖
-- 代码必须健壮，能够处理各种边缘情况，不会因为缺少对象或错误的索引而崩溃
-- 必须使用try-except-finally结构确保游戏能够正常退出
-- 必须确保所有变量和对象都正确初始化，避免使用未定义的变量
-
-输出格式：
-```vgdl
-[VGDL代码]
-```
-
-```python
-[Pygame脚本代码]
-```
-
-请确保：
-- VGDL 代码符合语法规范
-- Pygame 代码可以直接运行
-- 输出格式严格按照上述要求
-- 不要有其他额外的文字
-"""
+    prompt = VGDL_PROMPT.format(
+        game_description=game_description,
+        vgdl_template=VGDL_TEMPLATE
+    )
     return prompt
 
 
